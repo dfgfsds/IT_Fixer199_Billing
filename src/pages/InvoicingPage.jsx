@@ -1,5 +1,7 @@
 import { useState, useRef, useEffect } from 'react';
 import './InvoicingPage.css';
+import axiosInstance from '../configs/axios-middleware';
+import Api from "../api-endpoints/ApiUrls"
 
 /* ─── Product Catalog ─── */
 const PRODUCT_CATALOG = [
@@ -17,67 +19,147 @@ const PRODUCT_CATALOG = [
     { name: 'Paracetamol 500mg (10 strips)', hsn: '300490', price: 12.50, tax: 5, category: 'Pharmacy', icon: '💊' },
 ];
 
-const defaultItems = [
-    { id: 1, name: 'Premium Subscription', hsn: '997331', qty: 1, price: 1250.00, tax: 8.5 },
-    { id: 2, name: 'System Maintenance', hsn: '997332', qty: 5, price: 150.00, tax: 8.5 },
-];
+// const defaultItems = [
+//     { id: 1, name: 'Premium Subscription', hsn: '997331', qty: 1, price: 1250.00, tax: 8.5 },
+//     { id: 2, name: 'System Maintenance', hsn: '997332', qty: 5, price: 150.00, tax: 8.5 },
+// ];
 let nextId = 3;
 
 /* ─── Product Search Autocomplete ─── */
+// function ProductSearch({ value, onChange, onSelect }) {
+//     const [open, setOpen] = useState(false);
+//     const [query, setQuery] = useState(value);
+//     const wrapRef = useRef(null);
+
+//     // Sync if parent resets
+//     useEffect(() => { setQuery(value); }, [value]);
+
+//     // Close on outside click
+//     useEffect(() => {
+//         const handler = (e) => { if (wrapRef.current && !wrapRef.current.contains(e.target)) setOpen(false); };
+//         document.addEventListener('mousedown', handler);
+//         return () => document.removeEventListener('mousedown', handler);
+//     }, []);
+
+//     const suggestions = query.trim().length > 0
+//         ? PRODUCT_CATALOG.filter(p => p.name.toLowerCase().includes(query.toLowerCase()) || p.hsn.includes(query) || p.category.toLowerCase().includes(query.toLowerCase()))
+//         : PRODUCT_CATALOG;
+
+//     const handleInput = (e) => {
+//         setQuery(e.target.value);
+//         onChange(e.target.value);
+//         setOpen(true);
+//     };
+
+//     const handleSelect = (product) => {
+//         setQuery(product.name);
+//         onSelect(product);
+//         setOpen(false);
+//     };
+
+//     return (
+//         <div className="prod-search-wrap" ref={wrapRef}>
+//             <input
+//                 className="input"
+//                 value={query}
+//                 onChange={handleInput}
+//                 onFocus={() => setOpen(true)}
+//                 placeholder="Type to search products…"
+//                 style={{ minWidth: 200 }}
+//             />
+//             {open && suggestions.length > 0 && (
+//                 <div className="prod-suggestions">
+//                     {suggestions.slice(0, 8).map(p => (
+//                         <div key={p.name} className="prod-suggestion-item" onMouseDown={() => handleSelect(p)}>
+//                             <span className="prod-sugg-icon">{p.icon}</span>
+//                             <div className="prod-sugg-info">
+//                                 <div className="prod-sugg-name">{p.name}</div>
+//                                 <div className="prod-sugg-meta">
+//                                     <span className="prod-sugg-cat">{p.category}</span>
+//                                     <span className="prod-sugg-hsn">HSN: {p.hsn}</span>
+//                                     <span className="prod-sugg-price">₹{p.price.toFixed(2)}</span>
+//                                 </div>
+//                             </div>
+//                         </div>
+//                     ))}
+//                 </div>
+//             )}
+//         </div>
+//     );
+// }
+
 function ProductSearch({ value, onChange, onSelect }) {
-    const [open, setOpen] = useState(false);
-    const [query, setQuery] = useState(value);
-    const wrapRef = useRef(null);
+    const [list, setList] = useState([]);
+    const [show, setShow] = useState(false);
 
-    // Sync if parent resets
-    useEffect(() => { setQuery(value); }, [value]);
+    const handleSearch = async (val) => {
+        onChange(val);
 
-    // Close on outside click
-    useEffect(() => {
-        const handler = (e) => { if (wrapRef.current && !wrapRef.current.contains(e.target)) setOpen(false); };
-        document.addEventListener('mousedown', handler);
-        return () => document.removeEventListener('mousedown', handler);
-    }, []);
+        if (!val) {
+            setList([]);
+            return;
+        }
 
-    const suggestions = query.trim().length > 0
-        ? PRODUCT_CATALOG.filter(p => p.name.toLowerCase().includes(query.toLowerCase()) || p.hsn.includes(query) || p.category.toLowerCase().includes(query.toLowerCase()))
-        : PRODUCT_CATALOG;
-
-    const handleInput = (e) => {
-        setQuery(e.target.value);
-        onChange(e.target.value);
-        setOpen(true);
+        const data = await fetchProducts(val);
+        setList(data);
+        setShow(true);
     };
 
-    const handleSelect = (product) => {
-        setQuery(product.name);
-        onSelect(product);
-        setOpen(false);
+    const fetchProducts = async (search) => {
+        try {
+            const params = new URLSearchParams();
+
+            if (search) params.append("barcode", search); // barcode search
+
+            const res = await axiosInstance.get(
+                `${Api.products}?${params.toString()}`
+            );
+
+            return res?.data?.products || [];
+        } catch (err) {
+            console.error("Product fetch error", err);
+            return [];
+        }
+
     };
 
     return (
-        <div className="prod-search-wrap" ref={wrapRef}>
+        <div style={{ position: "relative" }}>
             <input
                 className="input"
-                value={query}
-                onChange={handleInput}
-                onFocus={() => setOpen(true)}
-                placeholder="Type to search products…"
-                style={{ minWidth: 200 }}
+                value={value}
+                placeholder="Scan / Enter product"
+                onChange={(e) => handleSearch(e.target.value)}
+                onFocus={() => value && setShow(true)}
             />
-            {open && suggestions.length > 0 && (
-                <div className="prod-suggestions">
-                    {suggestions.slice(0, 8).map(p => (
-                        <div key={p.name} className="prod-suggestion-item" onMouseDown={() => handleSelect(p)}>
-                            <span className="prod-sugg-icon">{p.icon}</span>
-                            <div className="prod-sugg-info">
-                                <div className="prod-sugg-name">{p.name}</div>
-                                <div className="prod-sugg-meta">
-                                    <span className="prod-sugg-cat">{p.category}</span>
-                                    <span className="prod-sugg-hsn">HSN: {p.hsn}</span>
-                                    <span className="prod-sugg-price">₹{p.price.toFixed(2)}</span>
-                                </div>
-                            </div>
+
+            {show && list.length > 0 && (
+                <div
+                    style={{
+                        position: "absolute",
+                        background: "#fff",
+                        border: "1px solid #ddd",
+                        width: "100%",
+                        zIndex: 10,
+                        maxHeight: "200px",
+                        overflowY: "auto"
+                    }}
+                >
+                    {list.map((p) => (
+                        <div
+                            key={p.id}
+                            style={{ padding: "8px", cursor: "pointer" }}
+                            onClick={() => {
+                                onSelect({
+                                    name: p?.name,
+                                    hsn: p?.hsn,
+                                    price: p.selling_price,
+                                    tax: p.tax || 0
+                                });
+                                setShow(false);
+                            }}
+                        >
+                            {p.name} ({p.barcode})
                         </div>
                     ))}
                 </div>
@@ -136,11 +218,11 @@ function printInvoice({ customer, invoiceNo, issueDate, items = [], subtotal = 0
       <tbody>${items.map(i => `< tr ><td>${i.name || '—'}</td><td>${i.qty}</td><td>₹${i.price.toFixed(2)}</td><td>${i.tax}%</td><td><b>₹${(i.qty * i.price).toFixed(2)}</b></td></tr> `).join('')}</tbody>
     </table>
     <div class="totals">
-      <div class="row"><span>Subtotal</span><span>₹${subtotal.toFixed(2)}</span></div>
-      <div class="row"><span>Tax (8.5%)</span><span>₹${taxAmount.toFixed(2)}</span></div>
-      <div class="row tot"><span>Total</span><span>₹${total.toFixed(2)}</span></div>
-      <div class="row"><span>Amount Paid</span><span>₹${amountPaid.toFixed(2)}</span></div>
-      ${remaining > 0 ? `<div class="row rem" ><span>Balance Remaining</span><span>₹${remaining.toFixed(2)}</span></div > ` : ''}
+      <div class="row"><span>Subtotal</span><span>₹${subtotal?.toFixed(2)}</span></div>
+      <div class="row"><span>Tax (8.5%)</span><span>₹${taxAmount?.toFixed(2)}</span></div>
+      <div class="row tot"><span>Total</span><span>₹${total?.toFixed(2)}</span></div>
+      <div class="row"><span>Amount Paid</span><span>₹${amountPaid?.toFixed(2)}</span></div>
+      ${remaining > 0 ? `<div class="row rem" ><span>Balance Remaining</span><span>₹${remaining?.toFixed(2)}</span></div > ` : ''}
     </div>
     ${notes ? `< p style = "margin-top:24px;font-size:13px;color:#555" > <b>Note:</b> ${notes}</p > ` : ''}
     <div class="footer">© 2024 Custodian Pro. Standard Financial Ledger protocols v4.2</div>
@@ -182,11 +264,11 @@ function PreviewModal({ open, onClose, data, onPrint }) {
                         ))}</tbody>
                     </table>
                     <div className="preview-totals">
-                        <div className="preview-total-row"><span>Subtotal</span><span>₹{subtotal.toFixed(2)}</span></div>
-                        <div className="preview-total-row"><span>Tax (8.5%)</span><span>₹{taxAmount.toFixed(2)}</span></div>
-                        <div className="preview-total-row preview-grand-total"><span>TOTAL</span><span>₹{total.toFixed(2)}</span></div>
-                        <div className="preview-total-row"><span>Amount Paid</span><span className="txt-success fw-600">₹{amountPaid.toFixed(2)}</span></div>
-                        {remaining > 0 && <div className="preview-total-row"><span>Balance Remaining</span><span className="txt-danger fw-600">₹{remaining.toFixed(2)}</span></div>}
+                        <div className="preview-total-row"><span>Subtotal</span><span>₹{subtotal?.toFixed(2)}</span></div>
+                        <div className="preview-total-row"><span>Tax (8.5%)</span><span>₹{taxAmount?.toFixed(2)}</span></div>
+                        <div className="preview-total-row preview-grand-total"><span>TOTAL</span><span>₹{total?.toFixed(2)}</span></div>
+                        <div className="preview-total-row"><span>Amount Paid</span><span className="txt-success fw-600">₹{amountPaid?.toFixed(2)}</span></div>
+                        {remaining > 0 && <div className="preview-total-row"><span>Balance Remaining</span><span className="txt-danger fw-600">₹{remaining?.toFixed(2)}</span></div>}
                     </div>
                     {notes && <div className="preview-notes"><b>Note:</b> {notes}</div>}
                 </div>
@@ -366,7 +448,7 @@ function POSModal({ open, onClose, onConfirm, total, paymentType }) {
 
 /* ─── Main Page ─── */
 export default function InvoicingPage() {
-    const [items, setItems] = useState(defaultItems);
+    const [items, setItems] = useState();
     const [customer, setCustomer] = useState('');
     const [notes, setNotes] = useState('');
     const [tags, setTags] = useState(['Q4_RECURRING', 'VIP_PRIORITY']);
@@ -380,16 +462,30 @@ export default function InvoicingPage() {
     const [showManual, setShowManual] = useState(false);
     const [manualIsFallback, setManualIsFallback] = useState(false);
 
-    const subtotal = items.reduce((s, i) => s + i.qty * i.price, 0);
-    const taxAmount = items.reduce((s, i) => s + i.qty * i.price * i.tax / 100, 0);
+    const subtotal = items?.reduce((s, i) => s + i?.qty * i?.price, 0);
+    const taxAmount = items?.reduce((s, i) => s + i?.qty * i?.price * i.tax / 100, 0);
     const total = subtotal + taxAmount;
     const paidNum = parseFloat(amountPaid) || 0;
     const remaining = Math.max(0, total - paidNum);
+    const [customers, setCustomers] = useState([]);
 
     const addItem = () => setItems([...items, { id: nextId++, name: '', hsn: '', qty: 1, price: 0, tax: 8.5 }]);
-    const applyProduct = (id, product) => setItems(items.map(i =>
-        i.id === id ? { ...i, name: product.name, hsn: product.hsn, price: product.price, tax: product.tax } : i
+    // const applyProduct = (id, product) => setItems(items.map(i =>
+    //     i.id === id ? { ...i, name: product.name, hsn: product.hsn, price: product.price, tax: product.tax } : i
+    // ));
+    const applyProduct = (id, product) => setItems(items?.map(i =>
+        i.id === id
+            ? {
+                ...i,
+                name: product.name,
+                hsn: product.hsn,
+                price: product.price,
+                tax: product.tax,
+                qty: 1
+            }
+            : i
     ));
+    console.log(items)
     const removeItem = (id) => setItems(items.filter(i => i.id !== id));
     const updateItem = (id, field, val) => setItems(items.map(i => i.id === id ? { ...i, [field]: val } : i));
 
@@ -405,6 +501,28 @@ export default function InvoicingPage() {
             setShowManual(true);
         }
     };
+
+    const fetchCustomers = async (size = pageSize) => {
+        try {
+            //   setLoading(true);
+
+            const response = await axiosInstance.get(
+                `${Api.allUsers}?role=CUSTOMER&size=${size}`
+            );
+
+            setCustomers(response.data?.users || []);
+
+        } catch (error) {
+            console.error("Failed to fetch customers:", error);
+        } finally {
+            //   setLoading(false);
+        }
+    };
+
+    useEffect(() => {
+        fetchCustomers("10000");
+    }, []);
+
 
     const openManualFallback = () => {
         setShowPOS(false);
@@ -457,6 +575,56 @@ export default function InvoicingPage() {
                             </div>
                         </div>
                     </div>
+
+
+                    {/* Billing Items */}
+                    <div className="card" style={{ marginTop: 14 }}>
+                        <div className="inv-items-head">
+                            <span className="fw-600" style={{ fontSize: '15px' }}>Billing Items</span>
+                            <button className="btn btn-primary btn-sm" onClick={addItem}>⊕ Add Item</button>
+                        </div>
+                        <div className="table-wrap">
+                            <table>
+                                <thead>
+                                    <tr><th>SERVICE/PRODUCT</th><th>HSN</th><th>QTY</th><th>PRICE</th><th>TAX %</th><th>SUBTOTAL</th><th></th></tr>
+                                </thead>
+                                <tbody>
+                                    {items?.map(item => (
+                                        <tr key={item.id}>
+                                            <td>
+                                                {/* <ProductSearch
+                                                    value={item.name}
+                                                    onChange={(val) => updateItem(item.id, 'name', val)}
+                                                    onSelect={(product) => applyProduct(item.id, product)}
+                                                /> */}
+                                                <ProductSearch
+                                                    value={item.name}
+                                                    onChange={(val) => updateItem(item.id, 'name', val)}
+                                                    onSelect={(product) => applyProduct(item.id, product)}
+                                                />
+                                            </td>
+                                            <td>
+                                                <input
+                                                    className="input"
+                                                    value={item.hsn || ''}
+                                                    onChange={e => updateItem(item.id, 'hsn', e.target.value)}
+                                                    placeholder="000000"
+                                                    style={{ width: '82px', fontFamily: 'monospace', fontSize: '12px' }}
+                                                />
+                                            </td>
+                                            <td><input className="input" type="number" value={item?.qty} onChange={e => updateItem(item?.id, 'qty', Number(e.target.value))} style={{ width: '60px' }} /></td>
+                                            <td><input className="input" type="number" value={item?.price} onChange={e => updateItem(item?.id, 'price', Number(e.target.value))} style={{ width: '90px' }} /></td>
+                                            <td><input className="input" type="number" value={item?.tax} onChange={e => updateItem(item?.id, 'tax', Number(e.target.value))} style={{ width: '60px' }} /></td>
+                                            <td className="fw-600">₹{(item?.qty * item?.price).toFixed(2)}</td>
+                                            <td><button className="inv-del-btn" onClick={() => removeItem(item.id)}>🗑</button></td>
+                                        </tr>
+                                    ))}
+
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
 
                     {/* Payment Type + Status */}
                     <div className="card card-pad" style={{ marginTop: 14 }}>
@@ -527,49 +695,6 @@ export default function InvoicingPage() {
                             </div>
                         )}
                     </div>
-
-                    {/* Billing Items */}
-                    <div className="card" style={{ marginTop: 14 }}>
-                        <div className="inv-items-head">
-                            <span className="fw-600" style={{ fontSize: '15px' }}>Billing Items</span>
-                            <button className="btn btn-primary btn-sm" onClick={addItem}>⊕ Add Item</button>
-                        </div>
-                        <div className="table-wrap">
-                            <table>
-                                <thead>
-                                    <tr><th>SERVICE/PRODUCT</th><th>HSN</th><th>QTY</th><th>PRICE</th><th>TAX %</th><th>SUBTOTAL</th><th></th></tr>
-                                </thead>
-                                <tbody>
-                                    {items.map(item => (
-                                        <tr key={item.id}>
-                                            <td>
-                                                <ProductSearch
-                                                    value={item.name}
-                                                    onChange={(val) => updateItem(item.id, 'name', val)}
-                                                    onSelect={(product) => applyProduct(item.id, product)}
-                                                />
-                                            </td>
-                                            <td>
-                                                <input
-                                                    className="input"
-                                                    value={item.hsn || ''}
-                                                    onChange={e => updateItem(item.id, 'hsn', e.target.value)}
-                                                    placeholder="000000"
-                                                    style={{ width: '82px', fontFamily: 'monospace', fontSize: '12px' }}
-                                                />
-                                            </td>
-                                            <td><input className="input" type="number" value={item.qty} onChange={e => updateItem(item.id, 'qty', Number(e.target.value))} style={{ width: '60px' }} /></td>
-                                            <td><input className="input" type="number" value={item.price} onChange={e => updateItem(item.id, 'price', Number(e.target.value))} style={{ width: '90px' }} /></td>
-                                            <td><input className="input" type="number" value={item.tax} onChange={e => updateItem(item.id, 'tax', Number(e.target.value))} style={{ width: '60px' }} /></td>
-                                            <td className="fw-600">₹{(item.qty * item.price).toFixed(2)}</td>
-                                            <td><button className="inv-del-btn" onClick={() => removeItem(item.id)}>🗑</button></td>
-                                        </tr>
-                                    ))}
-
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
                 </div>
 
                 {/* ── Right Summary ── */}
@@ -580,8 +705,8 @@ export default function InvoicingPage() {
                             {paymentStatus && <span className={`inv-ps-badge ₹{paymentStatus.cls}`}>{paymentStatus.label}</span>}
                         </div>
                         <div className="inv-sum-rows">
-                            <div className="inv-sum-row"><span>Subtotal</span><span>₹{subtotal.toLocaleString('en-US', { minimumFractionDigits: 2 })}</span></div>
-                            <div className="inv-sum-row"><span>Tax (8.5%)</span><span>₹{taxAmount.toFixed(2)}</span></div>
+                            <div className="inv-sum-row"><span>Subtotal</span><span>₹{subtotal?.toLocaleString('en-US', { minimumFractionDigits: 2 })}</span></div>
+                            <div className="inv-sum-row"><span>Tax (8.5%)</span><span>₹{taxAmount?.toFixed(2)}</span></div>
                         </div>
                         <div className="inv-sum-total">
                             <span>TOTAL AMOUNT</span>

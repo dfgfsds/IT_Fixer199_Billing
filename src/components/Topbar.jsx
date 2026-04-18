@@ -17,18 +17,18 @@ export default function Topbar() {
     return (
         <header className="topbar">
             <div className="tb-title">{title}</div>
-            <div className="tb-search">
+            {/* <div className="tb-search">
                 <span className="tb-search-icon">🔍</span>
                 <input type="text" placeholder="Search customer or bill number..." />
-            </div>
-            <nav className="tb-nav">
+            </div> */}
+            {/* <nav className="tb-nav">
                 <span className="tb-nav-link">Quick Actions</span>
                 <span className="tb-nav-link">Reports</span>
-            </nav>
+            </nav> */}
             <div className="tb-actions">
-                <button className="tb-icon-btn" title="Notifications">🔔</button>
+                {/* <button className="tb-icon-btn" title="Notifications">🔔</button>
                 <button className="tb-icon-btn" title="Help">❓</button>
-                <button className="btn btn-outline btn-sm">Support</button>
+                <button className="btn btn-outline btn-sm">Support</button> */}
                 <button className="btn btn-primary btn-sm" onClick={() => navigate('/invoicing')}>New Invoice</button>
             </div>
         </header>

@@ -10,6 +10,7 @@ import OrdersPage from './pages/OrdersPage';
 import Sidebar from './components/Sidebar';
 import Topbar from './components/Topbar';
 import './index.css';
+import { AuthProvider } from './contexts/AuthContext';
 
 function AppShell({ children, currentPage }) {
   return (
@@ -33,17 +34,18 @@ const ProtectedRoute = ({ loggedIn, children }) => {
 export default function App() {
   const [loggedIn, setLoggedIn] = useState(() => {
     // Check local storage robustly for any auth indicator
-    const token = localStorage.getItem('access_token') || sessionStorage.getItem('access_token');
+    const token = localStorage.getItem('token') || sessionStorage.getItem('token');
     const userStr = localStorage.getItem('user') || sessionStorage.getItem('user');
     // If either token or user string exists and is not an empty string, we consider them logged in
     return Boolean(token || (userStr && userStr !== '{}'));
   });
-
+console.log(loggedIn)
   return (
     <BrowserRouter>
+          <AuthProvider>
       <Routes>
         <Route path="/" element={
-          loggedIn ? <Navigate to="/dashboard" replace /> : <LoginPage onLogin={() => setLoggedIn(true)} />
+          loggedIn ? <Navigate to="/invoicing" replace /> : <LoginPage onLogin={() => setLoggedIn(true)} />
         } />
         <Route path="/dashboard" element={
           <ProtectedRoute loggedIn={loggedIn}>
@@ -77,6 +79,7 @@ export default function App() {
         } />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
+      </AuthProvider>
     </BrowserRouter>
   );
 }

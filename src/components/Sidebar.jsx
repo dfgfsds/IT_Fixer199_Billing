@@ -1,17 +1,20 @@
 import { NavLink, useNavigate } from 'react-router-dom';
 import './Sidebar.css';
+import { useAuth } from '../contexts/AuthContext';
 
 const navItems = [
-    { to: '/dashboard', label: 'Dashboard', icon: '⊞' },
+    // { to: '/dashboard', label: 'Dashboard', icon: '⊞' },
     { to: '/invoicing', label: 'Invoicing', icon: '📄' },
     { to: '/orders', label: 'Orders', icon: '📦' },
     { to: '/customers', label: 'Customers', icon: '👤' },
-    { to: '/payments', label: 'Payments', icon: '💳' },
+    // { to: '/payments', label: 'Payments', icon: '💳' },
     { to: '/catalog', label: 'Catalog', icon: '🗂' },
 ];
 
 export default function Sidebar({ currentPage }) {
     const navigate = useNavigate();
+      const { logout, user } = useAuth();
+
     return (
         <aside className="sidebar">
             <div className="sb-brand">
@@ -37,17 +40,25 @@ export default function Sidebar({ currentPage }) {
                 <button className="btn-create-bill" onClick={() => navigate('/invoicing')}>
                     <span>＋</span> Create New Bill
                 </button>
-                <div className="sb-util-links">
+                {/* <div className="sb-util-links">
                     <span className="sb-util-link">✓ Tasks</span>
                     <span className="sb-util-link">⚙ Settings</span>
-                </div>
+                </div> */}
                 <div className="sb-user">
-                    <div className="avatar" style={{ background: '#e0e7ff', color: '#3730a3', fontSize: '11px' }}>SJ</div>
+                    <div className="avatar" style={{ background: '#e0e7ff', color: '#3730a3', fontSize: '11px' }}>{user?.name?.slice(0,2)}</div>
                     <div>
-                        <div className="sb-user-name">Sarah Jenkins</div>
-                        <div className="sb-user-role">Administrator</div>
+                        <div className="sb-user-name">{user?.name}</div>
+                        <div className="sb-user-role">{user?.role}</div>
                     </div>
                 </div>
+                    <div className="p-4 border-t border-gray-800 shrink-0">
+        <button
+          onClick={logout}
+          className="flex items-center w-full px-4 py-3 text-sm text-gray-300 hover:bg-gray-800 hover:text-white rounded-lg transition"
+        >
+          Logout
+        </button>
+      </div>
             </div>
         </aside>
     );

@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './LoginPage.css';
+import { useAuth } from '../contexts/AuthContext';
 
 export default function LoginPage({ onLogin }) {
     const [email, setEmail] = useState('');
@@ -10,52 +11,64 @@ export default function LoginPage({ onLogin }) {
     const [isLoading, setIsLoading] = useState(false);
     const [errorMsg, setErrorMsg] = useState('');
     const navigate = useNavigate();
+  const { user, login } = useAuth();
 
     const handleLogin = async (e) => {
+
         e.preventDefault();
         setErrorMsg('');
-        setIsLoading(true);
+        // setIsLoading(true);
 
         try {
-            const response = await fetch('https://api.itfixer199.com/api/login', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    username: email,
-                    password: password,
-                    role: "HUB_MANAGER",
-                    login_type: "PASSWORD",
-                    device_type: "WEB",
-                    device_id: "webapp",
-                    device_name: "billing-webapp",
-                    ip_address: "0.0.0.0"
-                })
-            });
-
-            const data = await response.json();
-
-            if (!response.ok) {
-                throw new Error(data.message || data.detail || 'Login failed. Please check your credentials.');
-            }
-
-            const storage = localStorage;
-            storage.setItem('access_token', data?.tokens?.access || data?.access || '');
-            storage.setItem('refresh_token', data?.tokens?.refresh || data?.refresh || '');
-            storage.setItem('user', JSON.stringify(data?.user || {}));
-            if (data?.agent) {
-                storage.setItem('agent', JSON.stringify(data.agent));
-            }
-
-            onLogin();
-            navigate('/dashboard');
-        } catch (error) {
-            console.error('Login error:', error);
-            setErrorMsg(error.message || 'An error occurred during login.');
+            await login(email, password, "HUB_MANAGER");
+        } catch (err) {
+            console.log(err?.message)
+            // setError(err?.message || 'Login failed');
         } finally {
-            setIsLoading(false);
+            // setLoading(false);
         }
+
+        // try {
+        //     const response = await fetch('https://api.itfixer199.com/api/login', {
+        //         method: 'POST',
+        //         headers: {
+        //             'Content-Type': 'application/json'
+        //         },
+        //         body: JSON.stringify({
+        //             username: email,
+        //             password: password,
+        //             role: "HUB_MANAGER",
+        //             login_type: "PASSWORD",
+        //             device_type: "WEB",
+        //             device_id: "webapp",
+        //             device_name: "billing-webapp",
+        //             ip_address: "0.0.0.0"
+        //         })
+        //     });
+
+        //     const data = await response.json();
+
+        //     if (!response.ok) {
+        //         throw new Error(data.message || data.detail || 'Login failed. Please check your credentials.');
+        //     }
+
+        //     const storage = localStorage;
+        //     storage.setItem('access_token', data?.tokens?.access || data?.access || '');
+        //     storage.setItem('refresh_token', data?.tokens?.refresh || data?.refresh || '');
+        //     storage.setItem('
+        // ', JSON.stringify(data?.user || {}));
+        //     if (data?.agent) {
+        //         storage.setItem('agent', JSON.stringify(data.agent));
+        //     }
+
+        //     onLogin();
+        //     navigate('/dashboard');
+        // } catch (error) {
+        //     console.error('Login error:', error);
+        //     setErrorMsg(error.message || 'An error occurred during login.');
+        // } finally {
+        //     setIsLoading(false);
+        // }
     };
 
     return (
@@ -103,10 +116,10 @@ export default function LoginPage({ onLogin }) {
                         </div>
 
                         <div className="login-field">
-                            <div className="login-field-row">
+                            {/* <div className="login-field-row">
                                 <label>Password</label>
                                 <a href="#" className="login-forgot">Forgot Password?</a>
-                            </div>
+                            </div> */}
                             <div className="login-input-wrap">
                                 <span className="login-input-icon">🔒</span>
                                 <input
@@ -121,19 +134,19 @@ export default function LoginPage({ onLogin }) {
                             </div>
                         </div>
 
-                        <label className="login-check">
+                        {/* <label className="login-check">
                             <input type="checkbox" checked={keepMe} onChange={e => setKeepMe(e.target.checked)} />
                             <span>Keep me logged in</span>
-                        </label>
+                        </label> */}
 
                         <button type="submit" className="login-btn" disabled={isLoading}>
                             {isLoading ? 'Signing In...' : 'Sign In \u00a0\u2192'}
                         </button>
                     </form>
 
-                    <div className="login-support">
+                    {/* <div className="login-support">
                         Need assistance? <a href="#">Contact Support</a>
-                    </div>
+                    </div> */}
                 </div>
 
                 {/* Footer badges */}
