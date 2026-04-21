@@ -1,0 +1,71 @@
+.cust-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 20px;
+}
+
+/* Pagination Styles */
+.cat-pagination {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 24px;
+    background: var(--white);
+    border-top: 1px solid var(--border-light);
+}
+
+.pagination-info {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text-light);
+}
+
+.cat-pages {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.page-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 32px;
+    height: 32px;
+    padding: 0 6px;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-med);
+    background: var(--white);
+    border: 1.5px solid var(--border);
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.page-btn:hover:not(:disabled) {
+    background: var(--bg);
+    border-color: var(--text-xlight);
+    color: var(--text-dark);
+}
+
+.page-btn-active {
+    background: var(--primary-mid) !important;
+    color: #ffffff !important;
+    border-color: var(--primary-mid) !important;
+}
+
+.page-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    background: var(--bg2);
+    border-color: var(--border);
+}
+
+.page-btn-dots {
+    border: none !important;
+    background: transparent !important;
+    cursor: default !important;
+    color: var(--text-xlight) !important;
+}

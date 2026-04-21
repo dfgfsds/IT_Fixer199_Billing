@@ -1,0 +1,230 @@
+.dash-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 20px;
+}
+
+.dash-header-actions {
+    display: flex;
+    gap: 8px;
+}
+
+.dash-stats {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 14px;
+    margin-bottom: 20px;
+}
+
+.stat-chip {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    margin-bottom: 8px;
+}
+
+.chip-up {
+    color: var(--success);
+    background: #dcfce7;
+    padding: 1px 6px;
+    border-radius: 10px;
+    font-size: 11px;
+}
+
+.chip-warn {
+    color: var(--danger);
+    background: #fee2e2;
+    padding: 1px 6px;
+    border-radius: 10px;
+    font-size: 11px;
+}
+
+.dash-main {
+    display: grid;
+    grid-template-columns: 1fr 260px;
+    gap: 16px;
+}
+
+.dash-left {
+    display: flex;
+    flex-direction: column;
+}
+
+.dash-right {
+    display: flex;
+    flex-direction: column;
+}
+
+.dash-section-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    padding: 18px 20px 0;
+    margin-bottom: 4px;
+}
+
+.activity-list {
+    padding: 10px 0 6px;
+}
+
+.activity-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 11px 20px;
+    transition: background 0.15s;
+}
+
+.activity-item:hover {
+    background: var(--bg);
+}
+
+.activity-info {
+    flex: 1;
+    min-width: 0;
+}
+
+.activity-title {
+    font-size: 13.5px;
+    font-weight: 500;
+    color: var(--text-dark);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.activity-sub {
+    margin-top: 2px;
+}
+
+.activity-right {
+    text-align: right;
+    flex-shrink: 0;
+}
+
+.activity-amount {
+    font-size: 13.5px;
+}
+
+.activity-status {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    margin-top: 2px;
+}
+
+.act-completed {
+    color: var(--success);
+}
+
+.act-awaiting {
+    color: var(--warning);
+}
+
+.act-failed {
+    color: var(--danger);
+}
+
+/* Quick Actions */
+.qa-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+}
+
+.qa-btn {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    padding: 14px 10px;
+    background: var(--bg);
+    border: none;
+    border-radius: var(--radius);
+    cursor: pointer;
+    transition: background 0.15s;
+}
+
+.qa-btn:hover {
+    background: var(--bg2);
+}
+
+.qa-icon {
+    font-size: 22px;
+}
+
+/* Chart */
+.chart-legend {
+    display: flex;
+    gap: 12px;
+    font-size: 12px;
+    color: var(--text-light);
+    align-items: center;
+}
+
+.chart-legend span {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.chart-summary {
+    display: flex;
+    justify-content: space-around;
+    margin-top: 18px;
+    border-top: 1px solid var(--border);
+    padding-top: 14px;
+}
+
+.chart-sum-label {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    color: var(--text-xlight);
+    text-transform: uppercase;
+    margin-bottom: 3px;
+}
+
+.chart-sum-val {
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--text-dark);
+}
+
+/* Receivables Card */
+.recv-card {
+    background: var(--primary);
+    border-radius: var(--radius-lg);
+    padding: 22px 20px;
+    color: #fff;
+    position: relative;
+}
+
+.recv-label {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    opacity: 0.7;
+    margin-bottom: 6px;
+}
+
+.recv-logo {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+}
+
+.recv-amount {
+    font-size: 26px;
+    font-weight: 800;
+    letter-spacing: -0.5px;
+}
+
+.recv-row {
+    display: flex;
+    justify-content: space-between;
+    font-size: 12.5px;
+}

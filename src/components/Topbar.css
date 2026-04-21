@@ -1,0 +1,95 @@
+.topbar {
+    height: var(--topbar-height);
+    background: var(--white);
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 0 22px;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+}
+
+.tb-title {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--primary-mid);
+    white-space: nowrap;
+    margin-right: 6px;
+}
+
+.tb-search {
+    flex: 1;
+    max-width: 320px;
+    position: relative;
+}
+
+.tb-search input {
+    width: 100%;
+    padding: 7px 12px 7px 32px;
+    border: 1.5px solid var(--border);
+    border-radius: var(--radius-sm);
+    background: var(--bg);
+    font-size: 13px;
+    color: var(--text-med);
+    outline: none;
+}
+
+.tb-search input:focus {
+    border-color: var(--primary-mid);
+    background: #fff;
+}
+
+.tb-search-icon {
+    position: absolute;
+    left: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 13px;
+}
+
+.tb-nav {
+    display: flex;
+    gap: 4px;
+    margin-left: auto;
+}
+
+.tb-nav-link {
+    padding: 6px 12px;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text-med);
+    cursor: pointer;
+    border-radius: var(--radius-sm);
+    transition: background 0.15s;
+}
+
+.tb-nav-link:hover {
+    background: var(--bg);
+}
+
+.tb-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.tb-icon-btn {
+    width: 32px;
+    height: 32px;
+    background: transparent;
+    border: none;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    font-size: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-light);
+    transition: background 0.15s;
+}
+
+.tb-icon-btn:hover {
+    background: var(--bg);
+}
