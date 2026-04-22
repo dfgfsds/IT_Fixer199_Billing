@@ -1,0 +1,111 @@
+.pay-modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.4);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10000;
+    padding: 20px;
+}
+
+.pay-modal-card {
+    background: white;
+    border-radius: 12px;
+    padding: 24px;
+    width: 100%;
+    max-width: 400px;
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+    animation: payModalFadeIn 0.2s ease-out;
+}
+
+@keyframes payModalFadeIn {
+    from {
+        opacity: 0;
+        transform: scale(0.95);
+    }
+
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+.pay-modal-header {
+    margin-bottom: 24px;
+}
+
+.pay-modal-title {
+    font-size: 20px;
+    font-weight: 700;
+    color: #111827;
+    margin: 0;
+}
+
+.pay-modal-subtitle {
+    font-size: 14px;
+    color: #6b7280;
+    margin-top: 4px;
+}
+
+.pay-order-id {
+    font-weight: 600;
+    color: #ea580c;
+}
+
+.pay-modal-body {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.pay-input-group {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.pay-label {
+    font-size: 11px;
+    font-weight: 700;
+    color: #6b7280;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.pay-input {
+    width: 100%;
+    padding: 10px 14px;
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+    font-size: 14px;
+    outline: none;
+    transition: border-color 0.2s;
+    box-sizing: border-box;
+}
+
+.pay-input:focus {
+    border-color: #ea580c;
+}
+
+.pay-error-box {
+    margin-top: 16px;
+    padding: 12px;
+    background: #fef2f2;
+    border: 1px solid #fee2e2;
+    border-radius: 8px;
+}
+
+.pay-error-text {
+    font-size: 12px;
+    color: #dc2626;
+    text-align: center;
+    margin: 0;
+}
+
+.pay-modal-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    margin-top: 32px;
+}

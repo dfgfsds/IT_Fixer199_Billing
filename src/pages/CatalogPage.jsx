@@ -167,7 +167,7 @@ export default function CatalogPage() {
 
     // pagination
     const [page, setPage] = useState(1);
-    const [limit] = useState(40);
+    const [limit] = useState(10);
     const [totalPages, setTotalPages] = useState(1);
 
     /* ---------------- API ---------------- */
@@ -176,7 +176,7 @@ export default function CatalogPage() {
             const params = new URLSearchParams();
 
             params.append("page", page);
-            params.append("limit", limit);
+            params.append("size", limit);
             params.append("include_category", "true");
             params.append("include_brand", "true");
             params.append("include_pricing", "true");
@@ -190,7 +190,7 @@ export default function CatalogPage() {
             setProducts(res?.data?.products || []);
 
             const pagination = res?.data?.pagination;
-            if (pagination) setTotalPages(pagination.totalPages || 1);
+            if (pagination) setTotalPages(pagination.total_pages || 1);
 
         } catch (err) {
             console.error("Product fetch error", err);
@@ -200,6 +200,26 @@ export default function CatalogPage() {
     useEffect(() => {
         fetchProducts();
     }, [page, search]);
+
+    /* ---------------- HELPERS ---------------- */
+    const getPageNumbers = () => {
+        const pages = [];
+        const range = 1;
+
+        if (totalPages <= 7) {
+            for (let i = 1; i <= totalPages; i++) pages.push(i);
+            return pages;
+        }
+
+        for (let i = 1; i <= totalPages; i++) {
+            if (i === 1 || i === totalPages || (i >= page - range && i <= page + range)) {
+                pages.push(i);
+            } else if (pages[pages.length - 1] !== '...') {
+                pages.push('...');
+            }
+        }
+        return pages;
+    };
 
     /* ---------------- UI ---------------- */
     return (
@@ -237,6 +257,7 @@ export default function CatalogPage() {
                     <table>
                         <thead>
                             <tr>
+                                <th style={{ width: '50px' }}>S.NO</th>
                                 <th>PRODUCT NAME</th>
                                 <th>CATEGORY</th>
                                 <th>Brand</th>
@@ -247,8 +268,9 @@ export default function CatalogPage() {
                         </thead>
 
                         <tbody>
-                            {products.map(p => (
+                            {products.map((p, index) => (
                                 <tr key={p.id}>
+                                    <td>{(page - 1) * limit + index + 1}</td>
 
                                     {/* PRODUCT */}
                                     <td>
@@ -312,7 +334,7 @@ export default function CatalogPage() {
 
                 {/* PAGINATION */}
                 <div className="cat-pagination">
-                    <span className="txt-xs txt-light">
+                    <span className="pagination-info">
                         Page {page} of {totalPages}
                     </span>
 
@@ -323,13 +345,14 @@ export default function CatalogPage() {
                             onClick={() => setPage(p => p - 1)}
                         >‹</button>
 
-                        {[...Array(totalPages)].map((_, i) => (
+                        {getPageNumbers().map((p, i) => (
                             <button
                                 key={i}
-                                className={`page-btn ${page === i + 1 ? 'page-btn-active' : ''}`}
-                                onClick={() => setPage(i + 1)}
+                                className={`page-btn ${page === p ? 'page-btn-active' : ''} ${p === '...' ? 'page-btn-dots' : ''}`}
+                                onClick={() => p !== '...' && setPage(p)}
+                                disabled={p === '...'}
                             >
-                                {i + 1}
+                                {p}
                             </button>
                         ))}
 

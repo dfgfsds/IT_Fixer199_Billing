@@ -243,6 +243,9 @@ import { useEffect, useState, useMemo } from 'react';
 import './OrdersPage.css';
 import Api from "../api-endpoints/ApiUrls";
 import axiosInstance from '../configs/axios-middleware';
+import toast from 'react-hot-toast';
+import AddPaymentModal from '../components/AddPaymentModal';
+import OrderPreviewModal from '../components/OrderPreviewModal';
 
 /* ---------------- CONSTANTS & HELPERS ---------------- */
 const mapPaymentStatus = (status) => {
@@ -269,20 +272,28 @@ const PAY_CLASSES = {
 };
 
 const STATUS_CLASSES = {
-    ASSIGNED: 'ord-s-processing',
-    COMPLETED: 'ord-s-completed',
     PENDING: 'ord-s-pending',
-    PROCESSING: 'ord-s-processing',
-    FAILED: 'ord-s-failed',
+    CONFIRMED: 'ord-s-processing',
+    ASSIGNED: 'ord-s-processing',
+    IN_PROGRESS: 'ord-s-processing',
+    IN_TRANSIT: 'ord-s-transit',
+    SERVICE_IN_PROGRESS: 'ord-s-service',
+    COMPLETED: 'ord-s-completed',
     CANCELLED: 'ord-s-cancelled',
+    REFUNDED: 'ord-s-refunded',
 };
 
 export default function OrdersPage() {
     const [orders, setOrders] = useState([]);
     const [search, setSearch] = useState('');
     const [filterStatus, setFilterStatus] = useState('All');
-    
-    // ✅ DEFAULT CURRENT DATE
+
+    // Modal state
+    const [selectedOrderForPayment, setSelectedOrderForPayment] = useState(null);
+    const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
+    const [viewOrderId, setViewOrderId] = useState(null);
+
+    // ✅ DATE FILTERS
     const [startDate, setStartDate] = useState('');
     const [endDate, setEndDate] = useState('');
 
@@ -312,12 +323,12 @@ export default function OrdersPage() {
 
             if (startDate) params.append("start_date", startDate);
             if (endDate) params.append("end_date", endDate);
-            if (search) params.append("search", search);
-           
-
 
             const res = await axiosInstance.get(`${Api.orders}?${params.toString()}`);
-            setOrders(res?.data?.orders || []);
+
+            // Handle both Array or Object response structure
+            const data = Array.isArray(res?.data) ? res.data : (res?.data?.orders || []);
+            setOrders(data);
             setTotalPages(res?.data?.pagination?.totalPages || 1);
         } catch (err) {
             console.error("Fetch orders error", err);
@@ -326,36 +337,46 @@ export default function OrdersPage() {
         }
     };
 
-    // Refetch when dependencies change
+    // Refetch when dates or page change
     useEffect(() => {
         if (startDate && endDate) {
             fetchOrders();
         }
-    }, [page, startDate, endDate, search]);
+    }, [page, startDate, endDate]);
 
     /* ---------------- HANDLERS ---------------- */
     const handleSearchChange = (e) => {
         setSearch(e.target.value);
-        setPage(1); // Reset to page 1 on search
     };
 
     const handleFilterChange = (status) => {
         setFilterStatus(status);
-        setPage(1); // Reset to page 1 on filter change
     };
 
-    /* ---------------- CALCULATIONS ---------------- */
+    /* ---------------- CALCULATIONS (Professional Instant Search) ---------------- */
     const { filteredOrders, revenue } = useMemo(() => {
-        const filtered = orders.filter(o => 
-            filterStatus === 'All' || o?.order_status === filterStatus
-        );
-        
-        const total = filtered.reduce((acc, o) => 
+        const query = search.toLowerCase().trim();
+
+        const filtered = orders.filter(o => {
+            // 1. Payment Status Filter
+            const matchStatus = filterStatus === 'All' || o?.payment_status === filterStatus;
+
+            // 2. Instant Search Filter (ID, Name, or Phone)
+            const matchSearch = !query ||
+                o?.id?.toLowerCase().includes(query) ||
+                o?.customer_name?.toLowerCase().includes(query) ||
+                o?.customer_number?.includes(query);
+
+            return matchStatus && matchSearch;
+        });
+
+        // Revenue should only count Paid (SUCCESS) orders
+        const total = filtered.reduce((acc, o) =>
             acc + (o?.payment_status === 'SUCCESS' ? Number(o?.total_price || 0) : 0), 0
         );
 
         return { filteredOrders: filtered, revenue: total };
-    }, [orders, filterStatus]);
+    }, [orders, filterStatus, search]);
 
     /* ---------------- UI ---------------- */
     return (
@@ -370,11 +391,11 @@ export default function OrdersPage() {
                 <div className="date-filter-group">
                     <div className="input-field">
                         <label>From</label>
-                        <input type="date" className="input" value={startDate} onChange={e => {setStartDate(e.target.value); setPage(1);}} />
+                        <input type="date" className="input" value={startDate} onChange={e => { setStartDate(e.target.value); setPage(1); }} />
                     </div>
                     <div className="input-field">
                         <label>To</label>
-                        <input type="date" className="input" value={endDate} onChange={e => {setEndDate(e.target.value); setPage(1);}} />
+                        <input type="date" className="input" value={endDate} onChange={e => { setEndDate(e.target.value); setPage(1); }} />
                     </div>
                 </div>
             </div>
@@ -384,7 +405,7 @@ export default function OrdersPage() {
                 <div className="ord-search-wrapper">
                     <input
                         className="input search-input"
-                        placeholder="Search customer, ID, or phone..."
+                        placeholder="Search"
                         value={search}
                         onChange={handleSearchChange}
                     />
@@ -400,13 +421,18 @@ export default function OrdersPage() {
 
             {/* STATUS TABS */}
             <div className="ord-tab-container">
-                {['All', 'ASSIGNED', 'PENDING', 'PROCESSING', 'COMPLETED', 'FAILED'].map(s => (
+                {[
+                    { id: 'All', label: 'All' },
+                    { id: 'SUCCESS', label: 'Paid' },
+                    { id: 'PENDING', label: 'Pending' },
+                    { id: 'CREDIT', label: 'Credit' }
+                ].map(s => (
                     <button
-                        key={s}
-                        className={`tab-btn ${filterStatus === s ? 'tab-active' : ''}`}
-                        onClick={() => handleFilterChange(s)}
+                        key={s.id}
+                        className={`tab-btn ${filterStatus === s.id ? 'tab-active' : ''}`}
+                        onClick={() => handleFilterChange(s.id)}
                     >
-                        {s.charAt(0) + s.slice(1).toLowerCase()}
+                        {s.label}
                     </button>
                 ))}
             </div>
@@ -417,16 +443,22 @@ export default function OrdersPage() {
                     <table className={isLoading ? "table-loading" : ""}>
                         <thead>
                             <tr>
+                                <th style={{ width: '60px' }}>S.No.</th>
                                 <th>Order Details</th>
                                 <th>Customer</th>
                                 <th>Amount</th>
+                                <th>Balance</th>
                                 <th>Order Status</th>
                                 <th>Payment</th>
+                                <th>Actions</th>
                             </tr>
                         </thead>
                         <tbody>
-                            {filteredOrders.map(o => (
+                            {filteredOrders.map((o, idx) => (
                                 <tr key={o?.id}>
+                                    <td style={{ color: '#64748b', fontWeight: '600' }}>
+                                        {(page - 1) * limit + idx + 1}
+                                    </td>
                                     <td>
                                         <div className="order-id-cell">
                                             <span className="id-text">#{o?.id?.slice(0, 8)}</span>
@@ -440,6 +472,9 @@ export default function OrdersPage() {
                                         </div>
                                     </td>
                                     <td className="amount-cell">₹{Number(o?.total_price).toFixed(2)}</td>
+                                    <td className="amount-cell" style={{ fontWeight: '600', color: Number(o?.amount_to_be_paid) > 0 ? '#dc2626' : '#059669' }}>
+                                        ₹{Number(o?.amount_to_be_paid || 0).toFixed(2)}
+                                    </td>
                                     <td>
                                         <span className={`badge ${STATUS_CLASSES[o?.order_status]}`}>
                                             {o?.order_status}
@@ -450,28 +485,65 @@ export default function OrdersPage() {
                                             {mapPaymentStatus(o?.payment_status)}
                                         </span>
                                     </td>
+                                    <td>
+                                        <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                                            <button
+                                                className="btn btn-outline btn-sm"
+                                                onClick={(e) => {
+                                                    e.stopPropagation();
+                                                    setViewOrderId(o.id);
+                                                }}
+                                                title="View Details"
+                                                style={{ padding: '4px 8px' }}
+                                            >
+                                                <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" color="#4b5563">
+                                                    <path d="M12 15a3 3 0 100-6 3 3 0 000 6z" />
+                                                    <path fillRule="evenodd" d="M1.323 11.447C2.811 6.976 7.028 3.75 12.001 3.75c4.97 0 9.185 3.223 10.675 7.69.12.362.12.752 0 1.113-1.487 4.471-5.705 7.697-10.677 7.697-4.97 0-9.186-3.223-10.675-7.69a1.762 1.762 0 010-1.113zM17.25 12a5.25 5.25 0 11-10.5 0 5.25 5.25 0 0110.5 0z" clipRule="evenodd" />
+                                                </svg>
+                                            </button>
+                                            <button
+                                                className={`btn btn-sm ${Number(o?.amount_to_be_paid) > 0 ? 'btn-primary' : 'btn-disabled'}`}
+                                                disabled={Number(o?.amount_to_be_paid) <= 0}
+                                                onClick={(e) => {
+                                                    e.stopPropagation();
+                                                    setSelectedOrderForPayment(o);
+                                                    setIsPaymentModalOpen(true);
+                                                }}
+                                                style={{ padding: '4px 12px', fontSize: '12px', cursor: Number(o?.amount_to_be_paid) <= 0 ? 'not-allowed' : 'pointer' }}
+                                            >
+                                                Pay
+                                            </button>
+                                        </div>
+                                    </td>
                                 </tr>
                             ))}
+                            {filteredOrders.length === 0 && !isLoading && (
+                                <tr>
+                                    <td colSpan={7}>
+                                        <div className="ord-empty-state">
+                                            <h3>No orders found</h3>
+                                            <p>There are no transactions matching your current filters or date range.</p>
+                                        </div>
+                                    </td>
+                                </tr>
+                            )}
                         </tbody>
                     </table>
-                    
-                    {filteredOrders.length === 0 && !isLoading && (
-                        <div className="empty-state">No orders found for this period.</div>
-                    )}
+
                 </div>
 
                 {/* IMPROVED PAGINATION */}
                 <div className="pagination-footer">
                     <p className="page-info">Showing Page <b>{page}</b> of {totalPages}</p>
                     <div className="pagination-controls">
-                        <button 
-                            className="p-btn" 
-                            disabled={page === 1} 
+                        <button
+                            className="p-btn"
+                            disabled={page === 1}
                             onClick={() => setPage(p => Math.max(1, p - 1))}
                         >
                             Previous
                         </button>
-                        
+
                         <div className="p-numbers">
                             {/* Logic to show limited page numbers if totalPages is high */}
                             {[...Array(totalPages)].map((_, i) => (
@@ -487,9 +559,9 @@ export default function OrdersPage() {
                             ))}
                         </div>
 
-                        <button 
-                            className="p-btn" 
-                            disabled={page === totalPages} 
+                        <button
+                            className="p-btn"
+                            disabled={page === totalPages}
                             onClick={() => setPage(p => Math.min(totalPages, p + 1))}
                         >
                             Next
@@ -497,6 +569,29 @@ export default function OrdersPage() {
                     </div>
                 </div>
             </div>
+
+            {/* PREVIEW MODAL */}
+            <OrderPreviewModal
+                open={!!viewOrderId}
+                orderId={viewOrderId}
+                onClose={() => setViewOrderId(null)}
+            />
+
+            {/* PAYMENT MODAL */}
+            {isPaymentModalOpen && (
+                <AddPaymentModal
+                    order={selectedOrderForPayment}
+                    onClose={() => {
+                        setIsPaymentModalOpen(false);
+                        setSelectedOrderForPayment(null);
+                    }}
+                    onSuccess={() => {
+                        setIsPaymentModalOpen(false);
+                        setSelectedOrderForPayment(null);
+                        fetchOrders(); // Refresh table
+                    }}
+                />
+            )}
         </div>
     );
 }

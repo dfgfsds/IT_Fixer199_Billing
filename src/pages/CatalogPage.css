@@ -119,12 +119,16 @@
 
 .cat-pages {
     display: flex;
-    gap: 4px;
+    gap: 6px;
 }
 
 .page-btn {
-    width: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 30px;
     height: 30px;
+    padding: 0 6px;
     border: 1.5px solid var(--border);
     background: var(--white);
     border-radius: var(--radius-sm);
@@ -134,14 +138,33 @@
     transition: all 0.15s;
 }
 
-.page-btn:hover {
+.page-btn:hover:not(:disabled) {
     background: var(--bg);
+    border-color: var(--text-xlight);
 }
 
 .page-btn-active {
-    background: var(--primary-mid);
-    color: #fff;
-    border-color: var(--primary-mid);
+    background: var(--primary-mid) !important;
+    color: #fff !important;
+    border-color: var(--primary-mid) !important;
+}
+
+.page-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.page-btn-dots {
+    border: none !important;
+    background: transparent !important;
+    cursor: default !important;
+    color: var(--text-xlight) !important;
+}
+
+.pagination-info {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text-light);
 }
 
 /* Bottom */

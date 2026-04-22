@@ -14,12 +14,22 @@ const createUser = `${baseUrl}/api/user`;
 const categories = `${baseUrl}/api/category`;
 // Products
 const products = `${baseUrl}/api/product`;
+const productSerialAvailability = `${baseUrl}/api/product-serial/availability/`;
 
 // Orders
 const orders = `${baseUrl}/api/order/orders/all/`;
+const publicOrder = `${baseUrl}/api/order/public/order/`;
+const createOrderPayment = `${baseUrl}/api/order/public/order/`;
+const singleOrder = `${baseUrl}/api/order/orders/`;
+
 export default {
   login,
   allUsers,
   products,
   orders,
+  categories,
+  productSerialAvailability,
+  publicOrder,
+  createOrderPayment,
+  singleOrder,
 };

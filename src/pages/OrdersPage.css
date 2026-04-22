@@ -1,6 +1,5 @@
 /* Updated Container & Header */
 .ord-container {
-    padding: 20px;
     display: flex;
     flex-direction: column;
     gap: 20px;
@@ -47,7 +46,7 @@
 }
 
 .tab-btn {
-    padding: 8px 16px;
+    padding: 8px 12px;
     border: none;
     background: none;
     cursor: pointer;
@@ -110,11 +109,124 @@
     border-color: var(--primary-mid);
 }
 
-/* Badge Styles for Status */
-.badge, .badge-pill {
+/* Status Badges Base */
+.badge,
+.badge-pill {
     padding: 4px 10px;
     border-radius: 12px;
     font-size: 11px;
     font-weight: 600;
     text-transform: uppercase;
+    display: inline-block;
+    white-space: nowrap;
+}
+
+/* Status Badge Colors */
+.ord-s-pending {
+    background: #fff7ed;
+    color: #9a3412;
+    border: 1px solid #ffedd5;
+}
+
+.ord-s-processing {
+    background: #eff6ff;
+    color: #1e40af;
+    border: 1px solid #dbeafe;
+}
+
+.ord-s-transit {
+    background: #faf5ff;
+    color: #6b21a8;
+    border: 1px solid #f3e8ff;
+}
+
+.ord-s-service {
+    background: #fdf2f8;
+    color: #9d174d;
+    border: 1px solid #fce7f3;
+}
+
+.ord-s-completed {
+    background: #f0fdf4;
+    color: #166534;
+    border: 1px solid #dcfce7;
+}
+
+.ord-s-cancelled {
+    background: #fef2f2;
+    color: #991b1b;
+    border: 1px solid #fee2e2;
+}
+
+.ord-s-refunded {
+    background: #fffbeb;
+    color: #92400e;
+    border: 1px solid #fef3c7;
+}
+
+/* Actions Cell Styling */
+.actions-cell {
+    min-width: 140px;
+}
+
+.action-btns {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.icon-btn {
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid var(--border);
+    background: white;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 14px;
+    transition: all 0.2s ease;
+    color: var(--text-mid);
+}
+
+.icon-btn:hover {
+    background: var(--primary-pale);
+    border-color: var(--primary-mid);
+    color: var(--primary-mid);
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+/* Empty State Design */
+.ord-empty-state {
+    padding: 80px 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    background: #f8fafc;
+    border-radius: 12px;
+    margin: 20px;
+}
+
+.ord-empty-icon {
+    font-size: 48px;
+    margin-bottom: 16px;
+    filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.1));
+}
+
+.ord-empty-state h3 {
+    font-size: 18px;
+    font-weight: 700;
+    color: #1e293b;
+    margin: 0 0 8px 0;
+}
+
+.ord-empty-state p {
+    font-size: 14px;
+    max-width: 320px;
+    line-height: 1.6;
+    margin: 0;
 }

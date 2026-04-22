@@ -92,7 +92,7 @@ export default function CustomersPage() {
 
   // ✅ PAGINATION
   const [page, setPage] = useState(1);
-  const [limit] = useState(30);
+  const [limit] = useState(10);
   const [totalPages, setTotalPages] = useState(1);
 
   /* ---------------- API ---------------- */
@@ -101,7 +101,7 @@ export default function CustomersPage() {
       const params = new URLSearchParams();
 
       params.append("page", page);
-      params.append("limit", limit);
+      params.append("size", limit);
       params.append("role", "CUSTOMER");
 
       if (search) params.append("search", search);
@@ -114,7 +114,7 @@ export default function CustomersPage() {
 
       const pagination = res?.data?.pagination;
       if (pagination) {
-        setTotalPages(pagination.totalPages || 1);
+        setTotalPages(pagination.total_pages || 1);
       }
 
     } catch (err) {
@@ -126,6 +126,30 @@ export default function CustomersPage() {
   useEffect(() => {
     fetchCustomers();
   }, [page, search]);
+
+  /* ---------------- HELPERS ---------------- */
+  const getPageNumbers = () => {
+    const pages = [];
+    const range = 1;
+
+    if (totalPages <= 7) {
+      for (let i = 1; i <= totalPages; i++) pages.push(i);
+      return pages;
+    }
+
+    for (let i = 1; i <= totalPages; i++) {
+      if (
+        i === 1 ||
+        i === totalPages ||
+        (i >= page - range && i <= page + range)
+      ) {
+        pages.push(i);
+      } else if (pages[pages.length - 1] !== '...') {
+        pages.push('...');
+      }
+    }
+    return pages;
+  };
 
   /* ---------------- UI ---------------- */
   return (
@@ -161,6 +185,7 @@ export default function CustomersPage() {
           <table>
             <thead>
               <tr>
+                <th style={{ width: '50px' }}>S.NO</th>
                 <th>CUSTOMER</th>
                 <th>CONTACT</th>
                 {/* <th>INVOICES</th>
@@ -171,8 +196,9 @@ export default function CustomersPage() {
             </thead>
 
             <tbody>
-              {customers.map(c => (
+              {customers.map((c, index) => (
                 <tr key={c.id}>
+                  <td>{(page - 1) * limit + index + 1}</td>
                   <td>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
                       <div className="avatar" style={{ background: '#dbeafe', color: '#1e40af' }}>
@@ -230,24 +256,36 @@ export default function CustomersPage() {
           </table>
         </div>
 
-        {/* ✅ PAGINATION */}
         <div className="cat-pagination">
-          <span>Page {page} of {totalPages}</span>
+          <span className="pagination-info">Page {page} of {totalPages}</span>
 
           <div className="cat-pages">
-            <button disabled={page === 1} onClick={() => setPage(p => p - 1)}>‹</button>
+            <button
+              className="page-btn"
+              disabled={page === 1}
+              onClick={() => setPage(p => p - 1)}
+            >
+              ‹
+            </button>
 
-            {[...Array(totalPages)].map((_, i) => (
+            {getPageNumbers().map((p, i) => (
               <button
                 key={i}
-                className={page === i + 1 ? "page-btn-active" : ""}
-                onClick={() => setPage(i + 1)}
+                className={`page-btn ${page === p ? "page-btn-active" : ""} ${p === '...' ? "page-btn-dots" : ""}`}
+                onClick={() => p !== '...' && setPage(p)}
+                disabled={p === '...'}
               >
-                {i + 1}
+                {p}
               </button>
             ))}
 
-            <button disabled={page === totalPages} onClick={() => setPage(p => p + 1)}>›</button>
+            <button
+              className="page-btn"
+              disabled={page === totalPages}
+              onClick={() => setPage(p => p + 1)}
+            >
+              ›
+            </button>
           </div>
         </div>
       </div>
