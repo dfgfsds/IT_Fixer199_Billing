@@ -395,7 +395,7 @@ function PreviewModal({ open, onClose, data, onPrint }) {
                         <div><div className="inv-label">CUSTOMER</div><div className="fw-600">{customerName || '—'}</div><div className="txt-xs txt-light">{customerEmail} {customerNumber && `• ${customerNumber}`}</div></div>
                         <div><div className="inv-label">INVOICE NO.</div><div className="fw-600">{invoiceNo}</div></div>
                         <div><div className="inv-label">ISSUE DATE</div><div className="fw-600">{issueDate}</div></div>
-                        <div><div className="inv-label">PAYMENT TYPE</div><div className="fw-600">{paymentType ? `${paymentType.icon} ${paymentType.label}` : '—'}</div></div>
+                        <div><div className="inv-label">PAYMENT METHOD</div><div className="fw-600">{paymentType ? `${paymentType.icon} ${paymentType.label}` : '—'}</div></div>
                     </div>
                     <table className="preview-table">
                         <thead><tr><th>Item</th><th>Qty</th><th>Price</th><th>Tax</th><th>Subtotal</th></tr></thead>
