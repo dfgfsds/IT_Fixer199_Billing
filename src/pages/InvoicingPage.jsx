@@ -125,7 +125,7 @@ function ProductSearch({ value, onChange, onSelect }) {
         try {
             const params = new URLSearchParams();
 
-            if (search) params.append("barcode", search); // barcode search
+            if (search) params.append("barcode", search);
 
             const res = await axiosInstance.get(
                 `${Api.products}?${params.toString()}`
@@ -308,7 +308,6 @@ function printInvoice({ customerName, customerEmail, customerNumber, invoiceNo, 
       </div>
       <div><div class="ml">Issue Date</div><div class="mv">${invDate}</div></div>
       <div><div class="ml">Payment Method</div><div class="mv">${paymentType?.label || 'Cash'}</div></div>
-      <div><div class="ml">Payment Status</div><div class="mv"><span class="badge ${paymentStatus?.id || 'pending'}">${paymentStatus?.label || 'Pending'}</span></div></div>
     </div>
 
     <table>
@@ -614,7 +613,7 @@ export default function InvoicingPage() {
     const [tags, setTags] = useState(['Q4_RECURRING', 'VIP_PRIORITY']);
     const [invoiceNo, setInvoiceNo] = useState('');
     const [issueDate, setIssueDate] = useState(new Date().toISOString().split('T')[0]);
-    const [paymentType, setPaymentType] = useState(null);
+    const [paymentType, setPaymentType] = useState(PAYMENT_TYPES[0]);
     const [paymentStatus, setPaymentStatus] = useState(PAYMENT_STATUSES[0]);
     const [amountPaid, setAmountPaid] = useState('');
     const [showPreview, setShowPreview] = useState(false);
@@ -698,7 +697,7 @@ export default function InvoicingPage() {
         setOrderType('');
         setNotes('');
         setInvoiceNo('');
-        setPaymentType(null);
+        setPaymentType(PAYMENT_TYPES[0]);
         setAmountPaid('');
         setPaymentStatus(PAYMENT_STATUSES[0]);
     };
@@ -1339,7 +1338,7 @@ export default function InvoicingPage() {
                     <div className="card card-pad" style={{ marginTop: 14 }}>
                         <div className="inv-pay-row">
                             <div className="inv-pay-col">
-                                <div className="inv-label" style={{ marginBottom: 10 }}>PAYMENT TYPE</div>
+                                <div className="inv-label" style={{ marginBottom: 10 }}>PAYMENT METHOD</div>
                                 <div className="inv-pay-types">
                                     {PAYMENT_TYPES.map(pt => (
                                         <button key={pt.id}
