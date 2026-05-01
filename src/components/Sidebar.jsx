@@ -5,7 +5,7 @@ import { useAuth } from '../contexts/AuthContext';
 const navItems = [
     // { to: '/dashboard', label: 'Dashboard', icon: '⊞' },
     { to: '/invoicing', label: 'Invoicing', icon: '📄' },
-    { to: '/orders', label: 'Orders', icon: '📦' },
+    { to: '/orders', label: 'Sales List', icon: '📦' },
     { to: '/customers', label: 'Customers', icon: '👤' },
     // { to: '/payments', label: 'Payments', icon: '💳' },
     { to: '/catalog', label: 'Catalog', icon: '🗂' },
@@ -23,7 +23,7 @@ export default function Sidebar({ currentPage }) {
                 </div>
                 <div>
                     <div className="sb-brand-name">FTDS Pro</div>
-                    <div className="sb-brand-sub">Billing Terminal 01</div>
+                    {/* <div className="sb-brand-sub">Billing Terminal 01</div> */}
                 </div>
             </div>
 

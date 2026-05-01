@@ -320,19 +320,19 @@ function printInvoice({ customerName, customerEmail, customerNumber, invoiceNo, 
                 ${i.serial_numbers?.length ? `<div style="font-size:9px; color:#6b7280; margin-top:2px">S/N: ${i.serial_numbers.join(', ')}</div>` : ''}
             </td>
             <td style="text-align:center">${i.qty || 1}</td>
-            <td style="text-align:right">₹${Number(i.price || 0).toFixed(2)}</td>
-            <td style="text-align:right; font-weight:600">₹${(Number(i.qty || 1) * Number(i.price || 0)).toFixed(2)}</td>
+            <td style="text-align:right">₹${Number(i.price || 0)?.toFixed(2)}</td>
+            <td style="text-align:right; font-weight:600">₹${(Number(i.qty || 1) * Number(i.price || 0))?.toFixed(2)}</td>
           </tr>
         `).join('')}
       </tbody>
     </table>
 
     <div class="totals">
-      <div class="row"><span>Subtotal</span><span>₹${Number(subtotal || 0).toFixed(2)}</span></div>
-      <div class="row"><span>CGST/SGST (incl.)</span><span>₹${Number(taxAmount || 0).toFixed(2)}</span></div>
-      <div class="row tot"><span>Total Amount</span><span>₹${Number(total || 0).toFixed(2)}</span></div>
-      <div class="row" style="margin-top: 8px;"><span>Amount Paid</span><span style="font-weight:600; color:#059669">₹${Number(amountPaid || 0).toFixed(2)}</span></div>
-      ${remaining > 0 ? `<div class="row rem"><span>Balance Due</span><span>₹${remaining.toFixed(2)}</span></div>` : ''}
+      <div class="row"><span>Subtotal</span><span>₹${Number(subtotal || 0)?.toFixed(2)}</span></div>
+      <div class="row"><span>CGST/SGST (incl.)</span><span>₹${Number(taxAmount || 0)?.toFixed(2)}</span></div>
+      <div class="row tot"><span>Total Amount</span><span>₹${Number(total || 0)?.toFixed(2)}</span></div>
+      <div class="row" style="margin-top: 8px;"><span>Amount Paid</span><span style="font-weight:600; color:#059669">₹${Number(amountPaid || 0)?.toFixed(2)}</span></div>
+      ${remaining > 0 ? `<div class="row rem"><span>Balance Due</span><span>₹${remaining?.toFixed(2)}</span></div>` : ''}
     </div>
 
     ${notes ? `<div style="margin-top:30px; font-size:12px; color:#4b5563; border-left: 3px solid #e5e7eb; padding-left: 12px;"><b>Notes:</b><br/>${notes}</div>` : ''}
@@ -368,66 +368,268 @@ function printInvoice({ customerName, customerEmail, customerNumber, invoiceNo, 
     }, 500);
 }
 
-/* ─── Preview Modal ─── */
-function PreviewModal({ open, onClose, data, onPrint }) {
+// /* ─── Preview Modal ─── */
+// function PreviewModal({ open, onClose, data, onPrint }) {
+//     if (!open) return null;
+//     const { customerName, customerEmail, customerNumber, invoiceNo, issueDate, items, subtotal, taxAmount, total, notes, paymentType, paymentStatus, amountPaid } = data;
+//     const remaining = Math.max(0, total - amountPaid);
+//     return (
+//         <div className="modal-overlay" onClick={onClose}>
+//             <div className="modal-box" onClick={e => e.stopPropagation()}>
+//                 <div className="modal-header">
+//                     <div><div className="fw-600" style={{ fontSize: 16 }}>Invoice Preview</div><div className="txt-xs txt-light">Review before saving or printing</div></div>
+//                     <button className="modal-close" onClick={onClose}>✕</button>
+//                 </div>
+//                 <div className="modal-body">
+//                     <div className="preview-brand">
+//                         <div className="preview-logo" style={{ background: 'transparent' }}>
+//                             <img src="/logo.png" alt="ITFixer" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
+//                         </div>
+//                         <div>
+//                             <div className="fw-600" style={{ fontSize: 15 }}>ITFixer</div>
+//                             <div className="txt-xs txt-light">Professional Billing System</div>
+//                         </div>
+//                     </div>
+//                     <div className="preview-meta">
+//                         <div><div className="inv-label">CUSTOMER</div><div className="fw-600">{customerName || '—'}</div><div className="txt-xs txt-light">{customerEmail} {customerNumber && `• ${customerNumber}`}</div></div>
+//                         <div><div className="inv-label">INVOICE NO.</div><div className="fw-600">{invoiceNo}</div></div>
+//                         <div><div className="inv-label">ISSUE DATE</div><div className="fw-600">{issueDate}</div></div>
+//                         <div><div className="inv-label">PAYMENT METHOD</div><div className="fw-600">{paymentType ? `${paymentType.icon} ${paymentType.label}` : '—'}</div></div>
+//                     </div>
+//                     <table className="preview-table">
+//                         <thead><tr><th>Item</th><th>Qty</th><th>Price</th><th>Tax</th><th>Subtotal</th></tr></thead>
+//                         <tbody>{items.map(i => (
+//                             <tr key={i.id}><td>{i.name || '—'}</td><td>{i.qty}</td><td>₹{Number(i.price || 0).toFixed(2)}</td><td>0%</td><td className="fw-600">₹{(Number(i.qty || 0) * Number(i.price || 0)).toFixed(2)}</td></tr>
+//                         ))}</tbody>
+//                     </table>
+//                     <div className="preview-totals">
+//                         <div className="preview-total-row"><span>Subtotal</span><span>₹{Number(subtotal || 0).toFixed(2)}</span></div>
+//                         {/* <div className="preview-total-row"><span>Tax (8.5%)</span><span>₹{Number(taxAmount || 0).toFixed(2)}</span></div> */}
+//                         <div className="preview-total-row preview-grand-total"><span>TOTAL</span><span>₹{Number(total || 0).toFixed(2)}</span></div>
+//                         <div className="preview-total-row"><span>Amount Paid</span><span className="txt-success fw-600">₹{Number(amountPaid || 0).toFixed(2)}</span></div>
+//                         {remaining > 0 && <div className="preview-total-row"><span>Balance Remaining</span><span className="txt-danger fw-600">₹{Number(remaining || 0).toFixed(2)}</span></div>}
+//                     </div>
+//                     {notes && <div className="preview-notes"><b>Note:</b> {notes}</div>}
+//                 </div>
+//                 <div className="modal-footer">
+//                     <button className="btn btn-outline" onClick={onClose}>Close</button>
+//                     <button className="btn btn-outline" onClick={() => printInvoice(data)}>🖨 Print</button>
+//                     <button className="btn btn-primary" onClick={onClose}>✓ Save Invoice</button>
+//                 </div>
+//             </div>
+//         </div>
+//     );
+// }
+
+/* ─── Sigmah Style Preview Modal (Clean Version) ─── */
+function PreviewModal({ open, onClose, data, resetForm }) {
     if (!open) return null;
-    const { customerName, customerEmail, customerNumber, invoiceNo, issueDate, items, subtotal, taxAmount, total, notes, paymentType, paymentStatus, amountPaid } = data;
-    const remaining = Math.max(0, total - amountPaid);
+
+    const {
+        customerName, customerNumber, customerAddress, customerGst,
+        invoiceNo, issueDate, items
+    } = data;
+
+    const handlePrint = () => {
+        window.print();
+    };
+
+    // --- UPDATED LOGIC START ---
+    const totalQty = items?.reduce((acc, curr) => acc + Number(curr.qty), 0);
+
+    // 1. Total Discount calculation
+    const totalDiscount = items?.reduce((acc, item) => acc + (Number(item.discount) || 0), 0);
+
+    // 2. Net Amount (Gross total minus Total Discount)
+    const netAmount = items?.reduce((acc, item) => {
+        const itemTotal = (item.qty * item.price) - (Number(item.discount) || 0);
+        return acc + itemTotal;
+    }, 0);
+
+    // 3. GST Calculations based on the discounted Net Amount
+    const taxableValue = netAmount / 1.18;
+    const totalGst = netAmount - taxableValue;
+    const cgst_sgst = totalGst / 2;
+    // --- UPDATED LOGIC END ---
+    const netAmountWithOutGst = items.reduce((acc, item) => {
+    const gross = item.qty * item.price;
+    const taxable = gross / 1.18;
+    return acc + taxable;
+}, 0);
+
+
     return (
-        <div className="modal-overlay" onClick={onClose}>
-            <div className="modal-box" onClick={e => e.stopPropagation()}>
-                <div className="modal-header">
-                    <div><div className="fw-600" style={{ fontSize: 16 }}>Invoice Preview</div><div className="txt-xs txt-light">Review before saving or printing</div></div>
-                    <button className="modal-close" onClick={onClose}>✕</button>
+        <div className="modal-overlay" style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }}>
+            <style>
+                {`
+                @media print {
+                    @page { size: A4; margin: 5mm; }
+                    body { margin: 0; padding: 0; background: #fff; }
+                    .no-print { display: none !important; }
+                    #printable-area { width: 100%; margin: 0; padding: 0; }
+                    /* Fixed: Height auto panni, overflow hidden kudutha rendu page varathu */
+                   .main-container { 
+  border: 2px solid #000 !important; 
+  height: 287mm !important;   /* exact A4 height (margin adjust pannitu) */
+  overflow: hidden !important;
+  page-break-inside: avoid !important;
+}
+                }
+                /* Fixed: Table width issues */
+                .bill-table { width: 100%; border-collapse: collapse; table-layout: fixed; }
+                .bill-table th, .bill-table td { 
+                    border-right: 1.5px solid #000; 
+                    padding: 6px; 
+                    font-size: 11px; 
+                    word-wrap: break-word;
+                }
+                .bill-table th { border-bottom: 1.5px solid #000; background: #e2e8f0; font-weight: bold; }
+                .item-row { height: 35px; }
+                .total-row td { border-top: 2px solid #000 !important; border-bottom: 2px solid #000 !important; font-weight: bold; }
+                `}
+            </style>
+
+            {/* Fixed: Modal width changed to fit content without cutting */}
+            <div className="modal-box" style={{ background: '#fff', width: 'fit-content', maxWidth: '95vw', height: '95vh', overflowY: 'auto', borderRadius: '4px' }}>
+                <div className="no-print" style={{ padding: '10px 20px', borderBottom: '1px solid #ddd', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <b>Invoice Preview</b>
+                    <button onClick={() => { resetForm(), onClose() }} style={{ fontSize: '24px', border: 'none', background: 'none', cursor: 'pointer' }}>&times;</button>
                 </div>
-                <div className="modal-body">
-                    <div className="preview-brand">
-                        <div className="preview-logo" style={{ background: 'transparent' }}>
-                            <img src="/logo.png" alt="ITFixer" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
+
+                <div id="printable-area" style={{ padding: '20px' }}>
+                    <div className="main-container" style={{ border: '2px solid #000', display: 'flex', flexDirection: 'column', boxSizing: 'border-box', width: '210mm', minHeight: '277mm', margin: '0 auto' }}>
+
+                        {/* 1. Header with LOGO */}
+                        <div style={{ display: 'flex', borderBottom: '2px solid #000' }}>
+                            <div style={{ flex: '0 0 160px', padding: '10px', borderRight: '2px solid #000', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                <div style={{ background: '#0056b3', color: '#fff', padding: '10px', fontWeight: 'bold', textAlign: 'center', borderRadius: '4px', width: '100%' }}>
+                                    SIGMAH <br /> ENTERPRISES
+                                    <div style={{ color: '#90ee90', fontSize: '10px' }}>IT Fixer</div>
+                                </div>
+                            </div>
+                            <div style={{ flex: 1, textAlign: 'center', padding: '10px' }}>
+                                <h2 style={{ margin: '0', fontSize: '24px', fontWeight: '900' }}>SIGMAH ENTERPRISES</h2>
+                                <div style={{ fontSize: '11px' }}>New No.29 / Old No.31 & 32, Jafferkhanpet, Chennai - 600083</div>
+                                <div style={{ fontSize: '11px' }}>GST No: 33NVOPK6133G1Z8 | Email: itfixer7@gmail.com</div>
+                            </div>
                         </div>
-                        <div>
-                            <div className="fw-600" style={{ fontSize: 15 }}>ITFixer</div>
-                            <div className="txt-xs txt-light">Professional Billing System</div>
+
+                        {/* 2. To & Bill Details */}
+                        <div style={{ display: 'grid', gridTemplateColumns: '1.5fr 1fr', borderBottom: '2px solid #000' }}>
+                            <div style={{ padding: '8px', borderRight: '2px solid #000' }}>
+                                <div style={{ fontSize: '12px' }}><b>To:</b> {customerName}</div>
+                                <div style={{ fontSize: '12px' }}><b>PH:</b> {customerNumber}</div>
+                                <div style={{ fontSize: '10px' }}>{customerAddress}</div>
+                            </div>
+                            <div style={{ padding: '8px', fontSize: '12px' }}>
+                                <div style={{ display: 'flex' }}><span>Bill No :</span> <span>{invoiceNo}</span></div>
+                                <div style={{ display: 'flex' }}><span>Date :</span> <span>{issueDate}</span></div>
+                            </div>
+                        </div>
+
+                        {/* 3. Items Table */}
+                        <div style={{ flex: 1 }}>
+                            <table className="bill-table">
+                                <thead>
+                                    <tr>
+                                        <th style={{ width: '40px' }}>S.NO</th>
+                                        <th style={{ width: '200px' }}>DESCRIPTION</th>
+                                        <th style={{ width: '80px' }}>HSN</th>
+                                        <th style={{ width: '50px' }}>QTY</th>
+                                        <th style={{ width: '80px' }}>RATE</th>
+                                        <th style={{ width: '80px' }}>CGST @9%</th>
+                                        <th style={{ width: '80px' }}>SGST @9%</th>
+                                        <th style={{ width: '100px', borderRight: 'none' }}>AMOUNT</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {items.map((item, idx) => (
+                                        <tr key={idx} className="item-row">
+                                            <td style={{ textAlign: 'center' }}>{idx + 1}</td>
+                                            <td style={{ textAlign: 'left' }}>{item.name}</td>
+                                            <td style={{ textAlign: 'center' }}>{item.hsn || 'hsn_001'}</td>
+                                            <td style={{ textAlign: 'center' }}>{item.qty}</td>
+                                            <td style={{ textAlign: 'right' }}>{Number(item.price).toFixed(2)}</td>
+                                            <td style={{ textAlign: 'right' }}>{((item.qty * item.price * 0.18) / 2 / 1.18).toFixed(2)}</td>
+                                            <td style={{ textAlign: 'right' }}>{((item.qty * item.price * 0.18) / 2 / 1.18).toFixed(2)}</td>
+                                            <td style={{ textAlign: 'right', borderRight: 'none' }}>{((item.qty * item.price) / 1.18).toFixed(2)}</td>
+                                        </tr>
+                                    ))}
+                                    {/* Empty rows to maintain table height */}
+                                    {[...Array(Math.max(0, 15 - items.length))].map((_, i) => (
+                                        <tr key={i} className="item-row">
+                                            <td></td><td></td><td></td><td></td><td></td><td></td><td></td><td style={{ borderRight: 'none' }}></td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                                <tfoot>
+                                    <tr className="total-row">
+                                        <td colSpan="3" style={{ textAlign: 'right' }}>Tot.Qty</td>
+                                        <td style={{ textAlign: 'center' }}>{totalQty}</td>
+                                        <td style={{ textAlign: 'right' }}>Gross Amount</td>
+                                        <td style={{ textAlign: 'right' }}>{cgst_sgst.toFixed(2)}</td>
+                                        <td style={{ textAlign: 'right' }}>{cgst_sgst.toFixed(2)}</td>
+                                        <td style={{ textAlign: 'right', borderRight: 'none' }}>{netAmountWithOutGst.toFixed(2)}</td>
+                                    </tr>
+                                </tfoot>
+                            </table>
+                        </div>
+
+                        {/* 4. Footer Calculations */}
+                        <div style={{ display: 'grid', gridTemplateColumns: '1.5fr 1fr' }}>
+                            <div style={{ padding: '10px', borderRight: '2px solid #000' }}>
+                                <div style={{ fontSize: '11px', marginBottom: '8px' }}><b>Amount In Words:</b> [Rupees Amount Logic]</div>
+                                <div style={{ fontSize: '9px', lineHeight: '1.3' }}>
+                                    <b>Terms & Conditions:</b><br />
+                                    1. Payments via Bank Transfer/Cheque. 2. Goods once sold not returnable.
+                                </div>
+                            </div>
+                            <div>
+                                <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '11px' }}>
+                                    <tbody>
+                                        <tr style={{ borderBottom: '1px solid #000' }}><td style={{ padding: '4px' }}>Discount</td><td style={{ textAlign: 'right', borderLeft: '1.5px solid #000', padding: '4px' }}>
+                                            {totalDiscount > 0 ? `- ${totalDiscount.toFixed(2)}` : '0.00'}</td></tr>
+                                        <tr style={{ borderBottom: '1px solid #000' }}><td style={{ padding: '4px' }}>GST Amount</td><td style={{ textAlign: 'right', borderLeft: '1.5px solid #000', padding: '4px' }}>{totalGst.toFixed(2)}</td></tr>
+                                        <tr style={{ borderBottom: '1px solid #000' }}><td style={{ padding: '4px' }}>Round Off</td><td style={{ textAlign: 'right', borderLeft: '1.5px solid #000', padding: '4px' }}>0.00</td></tr>
+                                        <tr style={{ fontWeight: 'bold', background: '#eee', borderBottom: '1.5px solid #000' }}><td style={{ padding: '4px' }}>Net Amount</td><td style={{ textAlign: 'right', borderLeft: '1.5px solid #000', padding: '4px' }}>₹{netAmount.toFixed(2)}</td></tr>
+                                    </tbody>
+                                </table>
+                                <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '9px', textAlign: 'center' }}>
+                                    <tbody>
+                                        <tr style={{ borderBottom: '1px solid #000' }}><td style={{ borderRight: '1px solid #000' }}>GST %</td><td style={{ borderRight: '1px solid #000' }}>GST Amt</td><td>Good Value</td></tr>
+                                        <tr><td style={{ borderRight: '1px solid #000' }}>18%</td><td style={{ borderRight: '1px solid #000' }}>{totalGst.toFixed(2)}</td><td>{netAmount.toFixed(2)}</td></tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        {/* 5. Signatures */}
+                        <div style={{ padding: '40px 10px 10px 10px', borderTop: '2px solid #000' }}>
+                            <div style={{ textAlign: 'right', fontSize: '11px', fontWeight: 'bold', marginBottom: '60px' }}>For SIGMAH ENTERPRISES</div>
+                            <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                                <div style={{ width: '220px', borderTop: '1.5px solid #000', textAlign: 'center', fontSize: '10px', fontWeight: 'bold', paddingTop: '5px' }}>Customer Signature and Seal</div>
+                                <div style={{ width: '220px', borderTop: '1.5px solid #000', textAlign: 'center', fontSize: '10px', fontWeight: 'bold', paddingTop: '5px' }}>Authorised Signatory</div>
+                            </div>
                         </div>
                     </div>
-                    <div className="preview-meta">
-                        <div><div className="inv-label">CUSTOMER</div><div className="fw-600">{customerName || '—'}</div><div className="txt-xs txt-light">{customerEmail} {customerNumber && `• ${customerNumber}`}</div></div>
-                        <div><div className="inv-label">INVOICE NO.</div><div className="fw-600">{invoiceNo}</div></div>
-                        <div><div className="inv-label">ISSUE DATE</div><div className="fw-600">{issueDate}</div></div>
-                        <div><div className="inv-label">PAYMENT METHOD</div><div className="fw-600">{paymentType ? `${paymentType.icon} ${paymentType.label}` : '—'}</div></div>
-                    </div>
-                    <table className="preview-table">
-                        <thead><tr><th>Item</th><th>Qty</th><th>Price</th><th>Tax</th><th>Subtotal</th></tr></thead>
-                        <tbody>{items.map(i => (
-                            <tr key={i.id}><td>{i.name || '—'}</td><td>{i.qty}</td><td>₹{Number(i.price || 0).toFixed(2)}</td><td>0%</td><td className="fw-600">₹{(Number(i.qty || 0) * Number(i.price || 0)).toFixed(2)}</td></tr>
-                        ))}</tbody>
-                    </table>
-                    <div className="preview-totals">
-                        <div className="preview-total-row"><span>Subtotal</span><span>₹{Number(subtotal || 0).toFixed(2)}</span></div>
-                        {/* <div className="preview-total-row"><span>Tax (8.5%)</span><span>₹{Number(taxAmount || 0).toFixed(2)}</span></div> */}
-                        <div className="preview-total-row preview-grand-total"><span>TOTAL</span><span>₹{Number(total || 0).toFixed(2)}</span></div>
-                        <div className="preview-total-row"><span>Amount Paid</span><span className="txt-success fw-600">₹{Number(amountPaid || 0).toFixed(2)}</span></div>
-                        {remaining > 0 && <div className="preview-total-row"><span>Balance Remaining</span><span className="txt-danger fw-600">₹{Number(remaining || 0).toFixed(2)}</span></div>}
-                    </div>
-                    {notes && <div className="preview-notes"><b>Note:</b> {notes}</div>}
                 </div>
-                <div className="modal-footer">
-                    <button className="btn btn-outline" onClick={onClose}>Close</button>
-                    <button className="btn btn-outline" onClick={() => printInvoice(data)}>🖨 Print</button>
-                    <button className="btn btn-primary" onClick={onClose}>✓ Save Invoice</button>
+
+                <div className="no-print" style={{ padding: '20px', textAlign: 'right' }}>
+                    <button onClick={handlePrint} style={{ background: '#2563eb', color: '#fff', border: 'none', padding: '10px 30px', borderRadius: '4px', cursor: 'pointer', fontWeight: 'bold' }}>
+                        Print Invoice
+                    </button>
                 </div>
             </div>
         </div>
     );
 }
-
 /* ─── Manual Confirmation Modal (Cash / fallback) ─── */
 function ManualConfirmModal({ open, onClose, onConfirm, total, isFallback }) {
     const [cashGiven, setCashGiven] = useState('');
     const [confirmed, setConfirmed] = useState(false);
 
     const change = cashGiven && parseFloat(cashGiven) >= total
-        ? (parseFloat(cashGiven) - total).toFixed(2) : null;
+        ? (parseFloat(cashGiven) - total)?.toFixed(2) : null;
 
     const handleConfirm = () => {
         setConfirmed(true);
@@ -451,7 +653,7 @@ function ManualConfirmModal({ open, onClose, onConfirm, total, isFallback }) {
                         <div className="modal-body">
                             <div className="pos-amount-display">
                                 <div className="pos-amount-label">Amount Due</div>
-                                <div className="pos-amount">₹{total.toFixed(2)}</div>
+                                <div className="pos-amount">₹{total?.toFixed(2)}</div>
                                 {isFallback && <div className="pos-method" style={{ color: '#f59e0b' }}>⚠️ POS Unavailable — Manual Mode</div>}
                             </div>
                             <div className="pos-cash-section">
@@ -468,7 +670,7 @@ function ManualConfirmModal({ open, onClose, onConfirm, total, isFallback }) {
                                     <div className="pos-change">Change to return: <b>₹{change}</b></div>
                                 )}
                                 {cashGiven && parseFloat(cashGiven) < total && (
-                                    <div className="pos-partial-warn">⚠️ Partial payment — ₹{(total - parseFloat(cashGiven)).toFixed(2)} will remain outstanding</div>
+                                    <div className="pos-partial-warn">⚠️ Partial payment — ₹{(total - parseFloat(cashGiven))?.toFixed(2)} will remain outstanding</div>
                                 )}
                             </div>
                             {isFallback && (
@@ -528,7 +730,7 @@ function POSModal({ open, onClose, onConfirm, total, paymentType }) {
                         <div className="modal-body">
                             <div className="pos-amount-display">
                                 <div className="pos-amount-label">Amount Due</div>
-                                <div className="pos-amount">₹{total.toFixed(2)}</div>
+                                <div className="pos-amount">₹{total?.toFixed(2)}</div>
                                 {paymentType && <div className="pos-method">{paymentType.icon} {paymentType.label}</div>}
                             </div>
                             <div className="pos-card-prompt">
@@ -623,15 +825,34 @@ export default function InvoicingPage() {
     const [barcodeQuery, setBarcodeQuery] = useState('');
 
     const subtotal = items?.reduce((s, i) => s + i?.qty * i?.price, 0);
-    const taxAmount = items?.reduce((s, i) => s + i?.qty * i?.price * i.tax / 100, 0);
-    const total = subtotal + taxAmount;
+    // const taxAmount = items?.reduce((s, i) => s + i?.qty * i?.price * i.tax / 100, 0);
+    const taxAmount = items?.reduce((s, i) => {
+        const itemTotal = (i?.qty * i?.price) - (parseFloat(i?.discount) || 0);
+        return s + (itemTotal * (i.tax || 0) / 100);
+    }, 0);
+    // const total = subtotal + taxAmount;
+    const totalDiscount = items?.reduce((s, i) => s + (parseFloat(i?.discount) || 0), 0);
+    const total = subtotal - totalDiscount + taxAmount;
     const paidNum = parseFloat(amountPaid) || 0;
-    const remaining = Math.max(0, total - paidNum);
+    // const remaining = Math.max(0, total - paidNum);
     const [customers, setCustomers] = useState([]);
     const [allCategories, setAllCategories] = useState([]);
     const [allProducts, setAllProducts] = useState([]);
     const { user } = useAuth();
-    const hubId = user?.hubs?.[0]?.id || user?.hub_id || user?.hubId || user?.hub?.id || "";
+  
+    const hubId = user?.hubs?.[0]?.id || user?.hub_id;
+      console.log(hubId)
+    const [poData, setPoData] = useState();
+    const [loading, setLoading] = useState(false);
+    // Old amountPaid state-ah remove pannittu ithu rendu add pannu
+    const [payments, setPayments] = useState([
+        { amount: "", payment_method: "CASH", transaction_id: "" }
+    ]);
+
+    // Total amount paid calculate panna intha logic use pannu
+    const totalPaid = payments.reduce((sum, p) => sum + (parseFloat(p.amount) || 0), 0);
+    const remaining = Math.max(0, total - totalPaid);
+
 
     console.log("DEBUG: Logged in User Profile:", user);
     console.log("Active Hub ID:", hubId);
@@ -668,7 +889,6 @@ export default function InvoicingPage() {
             }
             : i
     ));
-    console.log(items)
     const removeItem = (id) => setItems(items.filter(i => i.id !== id));
     const updateItem = (id, field, val) => setItems(prev => prev.map(i => i.id === id ? { ...i, [field]: val } : i));
 
@@ -891,6 +1111,7 @@ export default function InvoicingPage() {
             toast.error("At least one valid item is required!");
             return;
         }
+        setLoading(true);
 
         try {
             const payload = {
@@ -916,6 +1137,14 @@ export default function InvoicingPage() {
                 user_id: null,
                 hub_id: hubId,
                 zone_id: user?.zone_id || null,
+                // Split Payments Array (Item-kulla irunthu veliya kondu vanthuten)
+                payments: payments
+                    .filter(p => parseFloat(p.amount) > 0)
+                    .map(p => ({
+                        amount: String(p.amount),
+                        payment_method: p.payment_method,
+                        transaction_id: p.transaction_id || ""
+                    })),
                 items: items.map(item => {
                     const cleanAttributes = Object.fromEntries(
                         Object.entries(item.attributes || {}).filter(([_, v]) => v !== "" && v !== null)
@@ -934,16 +1163,27 @@ export default function InvoicingPage() {
                         hsn_code: item.hsn || "",
                         product_id: item.product_id,
                         amount: String(item.price || "0"),
+                        payments: payments
+                            .filter(p => parseFloat(p.amount) > 0) // Zero amount irukatha filter panrom
+                            .map(p => ({
+                                amount: String(p.amount),
+                                payment_method: p.payment_method,
+                                transaction_id: p.transaction_id || ""
+                            })),
                     };
                 })
             };
 
             const response = await axiosInstance.post(Api.publicOrder, payload);
             if (response.data) {
+                setLoading(false);
+                setPoData(response?.data)
+                // resetForm();
                 toast.success("Order Created Successfully!");
                 setShowPreview(true);
             }
         } catch (err) {
+            setLoading(false);
             toast.error(err.response?.data?.message || "Failed to create order");
             console.error("Order creation failed:", err);
         }
@@ -951,7 +1191,7 @@ export default function InvoicingPage() {
 
     const handlePaymentConfirmed = () => {
         setPaymentStatus(PAYMENT_STATUSES.find(s => s.id === (remaining <= 0 ? 'paid' : 'partial')));
-        if (paidNum === 0) setAmountPaid(total.toFixed(2));
+        if (paidNum === 0) setAmountPaid(total?.toFixed(2));
     };
 
     return (
@@ -963,9 +1203,25 @@ export default function InvoicingPage() {
                     <p className="section-subtitle">Create a professional ledger entry for your client.</p>
                 </div>
                 <div className="inv-header-actions">
-                    <button className="btn btn-outline" onClick={() => printInvoice(invoiceData)}>Print</button>
-                    <button className="btn btn-outline" onClick={() => setShowPreview(true)}>Preview</button>
-                    <button className="btn btn-primary" onClick={handleSaveAndPreview}>Place Order</button>
+                    {/* <button className="btn btn-outline" onClick={() => printInvoice(invoiceData)}>Print</button>
+                    <button className="btn btn-outline" onClick={() => setShowPreview(true)}>Preview</button> */}
+                    <button
+                        disabled={loading}
+                        className="btn btn-primary d-flex align-items-center justify-content-center"
+                        onClick={handleSaveAndPreview}
+                    >
+                        {loading ? (
+                            <>
+                                <span
+                                    className="spinner-border spinner-border-sm me-2"
+                                    role="status"
+                                ></span>
+                                Processing...
+                            </>
+                        ) : (
+                            "Place Order"
+                        )}
+                    </button>
                 </div>
             </div>
 
@@ -1335,7 +1591,7 @@ export default function InvoicingPage() {
 
 
                     {/* Payment Type + Status */}
-                    <div className="card card-pad" style={{ marginTop: 14 }}>
+                    {/* <div className="card card-pad" style={{ marginTop: 14 }}>
                         <div className="inv-pay-row">
                             <div className="inv-pay-col">
                                 <div className="inv-label" style={{ marginBottom: 10 }}>PAYMENT METHOD</div>
@@ -1350,67 +1606,140 @@ export default function InvoicingPage() {
                                     ))}
                                 </div>
                             </div>
-                            {/* <div className="inv-pay-col">
-                                <div className="inv-label" style={{ marginBottom: 10 }}>PAYMENT STATUS</div>
-                                <div className="inv-status-btns">
-                                    {PAYMENT_STATUSES.map(ps => (
-                                        <button key={ps.id}
-                                            className={`inv-status-btn ${ps.cls} ${paymentStatus?.id === ps.id ? 'inv-status-active' : ''}`}
-                                            onClick={() => setPaymentStatus(ps)}>
-                                            {ps.label}
-                                        </button>
-                                    ))}
+                         
+                        </div>
+                    </div> */}
+
+                    {/* Payment Section */}
+                    <div className="card card-pad mt-4" style={{ backgroundColor: '#fff', borderRadius: '12px', boxShadow: '0 2px 10px rgba(0,0,0,0.05)', padding: '20px' }}>
+                        {/* Header Section */}
+                        <div className="flex justify-between items-center mb-4" style={{ borderBottom: '1px solid #eee', paddingBottom: '10px' }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#333" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="5" width="20" height="14" rx="2" /><line x1="2" y1="10" x2="22" y2="10" /></svg>
+                                <h3 className="fw-600" style={{ margin: 0, fontSize: '1.1rem', color: '#2c3e50' }}>Payments</h3>
+                            </div>
+
+                        </div>
+
+                        {/* Payment Rows */}
+                        {payments.map((pay, idx) => (
+                            <div key={idx} className="payment-row mb-3 p-3" style={{ background: '#fcfcfc', border: '1px solid #edf2f7', borderRadius: '10px' }}>
+                                <div className="grid grid-cols-12 gap-3" style={{ display: 'grid', gridTemplateColumns: 'repeat(12, 1fr)', gap: '12px' }}>
+
+                                    {/* Method Selector with Icon logic */}
+                                    <div className="col-span-5" style={{ gridColumn: 'span 5', marginTop: "5px", marginBottom: '5px' }}>
+                                        <label className="inv-label text-xs" style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold', color: '#718096', fontSize: '11px', textTransform: 'uppercase' }}>Method</label>
+                                        <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
+                                            <span style={{ position: 'absolute', left: '10px', pointerEvents: 'none' }}>
+                                                {pay.payment_method === 'CASH' && <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#27ae60" strokeWidth="2"><rect x="2" y="6" width="20" height="12" rx="2" /><circle cx="12" cy="12" r="2" /></svg>}
+                                                {pay.payment_method === 'UPI' && <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#8e44ad" strokeWidth="2"><path d="M4 4h7v7H4zM13 4h7v7h-7zM4 13h7v7H4zM17 17l3 3M20 17l-3 3" /></svg>}
+                                                {pay.payment_method === 'CARD' && <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#2980b9" strokeWidth="2"><rect x="1" y="4" width="22" height="16" rx="2" /><line x1="1" y1="10" x2="23" y2="10" /></svg>}
+                                            </span>
+                                            <select
+                                                className="input w-full"
+                                                style={{ paddingLeft: '32px', height: '38px', borderRadius: '6px', border: '1px solid #cbd5e0', width: '100%' }}
+                                                value={pay.payment_method}
+                                                onChange={(e) => {
+                                                    const newPays = [...payments];
+                                                    newPays[idx].payment_method = e.target.value;
+                                                    setPayments(newPays);
+                                                }}
+                                            >
+                                                <option value="CASH">💵 Cash</option>
+                                                <option value="UPI">📱 UPI / Scanner</option>
+                                                <option value="CARD">💳 Card</option>
+                                            </select>
+                                        </div>
+                                    </div>
+
+                                    {/* Amount Input */}
+                                    <div className="col-span-5" style={{ gridColumn: 'span 5' }}>
+                                        <label className="inv-label text-xs" style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold', color: '#718096', fontSize: '11px', textTransform: 'uppercase' }}>Amount</label>
+                                        <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
+                                            <span style={{ position: 'absolute', left: '10px', color: '#a0aec0', fontWeight: '600' }}>₹</span>
+                                            <input
+                                                type="number"
+                                                className="input w-full"
+                                                style={{ paddingLeft: '25px', height: '38px', borderRadius: '6px', border: '1px solid #cbd5e0', width: '100%', fontWeight: '600' }}
+                                                placeholder="0.00"
+                                                value={pay.amount}
+                                                onChange={(e) => {
+                                                    const newPays = [...payments];
+                                                    newPays[idx].amount = e.target.value;
+                                                    setPayments(newPays);
+                                                }}
+                                            />
+                                        </div>
+                                    </div>
+
+                                    {/* Delete Button */}
+                                    <div className="col-span-2 flex items-end" style={{ gridColumn: 'span 2', display: 'flex', alignItems: 'flex-end', justifyContent: 'center' }}>
+                                        {payments.length > 1 && (
+                                            <button
+                                                className="text-danger"
+                                                style={{ background: '#fff5f5', border: '1px solid #feb2b2', color: '#e53e3e', borderRadius: '6px', padding: '7px 10px', cursor: 'pointer' }}
+                                                onClick={() => setPayments(payments.filter((_, i) => i !== idx))}
+                                            >
+                                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="3 6 5 6 21 6" /><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" /></svg>
+                                            </button>
+                                        )}
+                                    </div>
+
+                                    {/* Transaction ID */}
+                                    {pay.payment_method !== 'CASH' && (
+                                        <div className="col-span-12 mt-1" style={{ gridColumn: 'span 12' }}>
+                                            <input
+                                                className="input w-full"
+                                                style={{ height: '34px', fontSize: '13px', borderRadius: '6px', border: '1px solid #cbd5e0', width: '100%', padding: '0 10px', background: '#fff' }}
+                                                placeholder="Enter Transaction ID (Optional)"
+                                                value={pay.transaction_id}
+                                                onChange={(e) => {
+                                                    const newPays = [...payments];
+                                                    newPays[idx].transaction_id = e.target.value;
+                                                    setPayments(newPays);
+                                                }}
+                                            />
+                                        </div>
+                                    )}
                                 </div>
-                            </div> */}
+
+                            </div>
+                        ))}
+                        {/* Parent container-la flex kudutha thaan marginLeft auto work aagum */}
+                        <div style={{ display: 'flex', width: '100%' }}>
+                            <button
+                                className="btn btn-sm"
+                                style={{
+                                    backgroundColor: '#f0f7ff',
+                                    color: '#007bff',
+                                    border: '1px solid #007bff',
+                                    borderRadius: '6px',
+                                    padding: '5px 12px',
+                                    cursor: 'pointer',
+                                    fontWeight: '600',
+                                    display: "flex",
+                                    alignItems: "center",
+                                    marginLeft: "auto", // Right side push pannum
+                                    margin: "5px"
+                                }}
+                                onClick={() => setPayments([...payments, { amount: "", payment_method: "CASH", transaction_id: "" }])}
+                            >
+                                + Split Payment
+                            </button>
+                        </div>
+                        {/* Summary Footer */}
+                        <div className="mt-4 pt-3" style={{ borderTop: '2px dashed #edf2f7' }}>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '5px' }}>
+                                <span style={{ color: '#718096', fontSize: '0.9rem' }}>Total Paid:</span>
+                                <span style={{ fontWeight: '700', color: '#2d3748' }}>₹{totalPaid.toFixed(2)}</span>
+                            </div>
+                            <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                                <span style={{ color: '#e53e3e', fontSize: '0.9rem', fontWeight: '500' }}>Balance Remaining:</span>
+                                <span style={{ fontWeight: '700', color: '#e53e3e' }}>₹{remaining.toFixed(2)}</span>
+                            </div>
                         </div>
                     </div>
 
-                    {/* Amount Paid / Remaining */}
-                    <div className="card card-pad" style={{ marginTop: 14 }}>
-                        <div className="inv-amt-row">
-                            <div className="inv-amt-col">
-                                <div className="inv-label" style={{ marginBottom: 7 }}>BALANCE REMAINING</div>
-                                <div className={`inv-remaining ${remaining > 0 ? 'inv-remaining-due' : 'inv-remaining-clear'}`}>
-                                    {remaining > 0 ? `₹${remaining.toFixed(2)} due` : '✓ Fully Paid'}
-                                </div>
-                            </div>
-                            <div className="inv-amt-col">
-                                <div className="inv-label" style={{ marginBottom: 7 }}>INVOICE TOTAL</div>
-                                <div className="inv-total-display">₹{total.toFixed(2)}</div>
-                            </div>
-                            {/* <div className="inv-amt-divider"></div> */}
-                            <div className="inv-amt-col">
-                                <label className="inv-label" style={{ marginBottom: 7, display: 'block' }}>AMOUNT PAID</label>
-                                <div className="inv-amt-input">
-                                    <span className="inv-amt-dollar">₹</span>
-                                    <input
-                                        className="input"
-                                        type="number"
-                                        placeholder="0.00"
-                                        value={amountPaid}
-                                        onChange={e => {
-                                            const val = e.target.value;
-                                            if (parseFloat(val) < 0) {
-                                                setAmountPaid('0');
-                                            } else {
-                                                setAmountPaid(val);
-                                            }
-                                        }}
-                                        min="0"
-                                        style={{ paddingLeft: 26, fontWeight: 600 }}
-                                    />
-                                </div>
-                            </div>
-                        </div>
-                        {paidNum > 0 && paidNum < total && (
-                            <div className="inv-partial-bar">
-                                <div className="progress-bar" style={{ height: 6, marginTop: 12 }}>
-                                    <div className="progress-fill" style={{ width: `${Math.min(100, (paidNum / total) * 100).toFixed(1)}%` }}></div>
-                                </div>
-                                <div className="txt-xs txt-light" style={{ marginTop: 4 }}>{((paidNum / total) * 100).toFixed(0)}% collected</div>
-                            </div>
-                        )}
-                    </div>
                 </div>
 
                 {/* ── Right Summary ── */}
@@ -1424,6 +1753,12 @@ export default function InvoicingPage() {
                             <div className="inv-sum-row"><span>Subtotal</span><span>₹{subtotal?.toLocaleString('en-US', { minimumFractionDigits: 2 })}</span></div>
                             {/* <div className="inv-sum-row"><span>Tax (8.5%)</span><span>₹{taxAmount?.toFixed(2)}</span></div> */}
                         </div>
+                        {totalDiscount > 0 && (
+                            <div className="summary-row" style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 0', color: 'red' }}>
+                                <span>Discount</span>
+                                <span>- ₹{totalDiscount.toFixed(2)}</span>
+                            </div>
+                        )}
                         <div className="inv-sum-total">
                             <span>TOTAL AMOUNT</span>
                             <span>₹{total.toLocaleString('en-US', { minimumFractionDigits: 2 })}</span>
@@ -1433,19 +1768,19 @@ export default function InvoicingPage() {
                         <div className="inv-paid-summary">
                             <div className="inv-paid-row">
                                 <span className="txt-xs txt-light">Amount Paid</span>
-                                <span className="fw-600 txt-success">₹{paidNum.toFixed(2)}</span>
+                                <span className="fw-600 txt-success">₹{totalPaid?.toFixed(2)}</span>
                             </div>
                             <div className="inv-paid-row">
                                 <span className="txt-xs txt-light">Remaining</span>
                                 <span className={`fw-600 ${remaining > 0 ? 'txt-danger' : 'txt-success'}`}>
-                                    {remaining > 0 ? `₹${remaining.toFixed(2)}` : 'Settled ✓'}
+                                    {remaining > 0 ? `₹${remaining?.toFixed(2)}` : 'Settled ✓'}
                                 </span>
                             </div>
                         </div>
 
-                        {paymentType && (
+                        {/* {paymentType && (
                             <div className="inv-pay-selected">{paymentType.icon} <span className="fw-600">{paymentType.label}</span><span className="txt-xs txt-light" style={{ marginLeft: 6 }}>selected</span></div>
-                        )}
+                        )} */}
 
                         {/* <div className="inv-compliance">
                             <span className="dot dot-green"></span>
@@ -1460,9 +1795,9 @@ export default function InvoicingPage() {
                             {/* <button className="inv-pos-btn" onClick={handleCheckout}>
                                 {paymentType?.usePOS === false ? '💵 Record Cash Payment' : '⚡ Confirm via POS Terminal'}
                             </button> */}
-                            <button className="inv-manual-btn" onClick={() => { setManualIsFallback(true); setShowManual(true); }}>
+                            {/* <button className="inv-manual-btn" onClick={() => { setManualIsFallback(true); setShowManual(true); }}>
                                 🖐 Manual Confirmation
-                            </button>
+                            </button> */}
                         </div>
                     </div>
 
@@ -1487,10 +1822,11 @@ export default function InvoicingPage() {
                 open={showPreview}
                 onClose={() => {
                     setShowPreview(false);
-                    resetForm();
+                    // resetForm();
                     toast.info("Form cleared for new order");
                 }}
                 data={invoiceData}
+                resetForm={resetForm}
             />
             <POSModal
                 open={showPOS} onClose={() => setShowPOS(false)}

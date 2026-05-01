@@ -444,11 +444,11 @@ export default function OrdersPage() {
                         <thead>
                             <tr>
                                 <th style={{ width: '60px' }}>S.No.</th>
-                                <th>Order Details</th>
                                 <th>Customer</th>
+                                <th>Date</th>
                                 <th>Amount</th>
                                 <th>Balance</th>
-                                <th>Order Status</th>
+                                {/* <th>Order Status</th> */}
                                 <th>Payment</th>
                                 <th>Actions</th>
                             </tr>
@@ -459,27 +459,28 @@ export default function OrdersPage() {
                                     <td style={{ color: '#64748b', fontWeight: '600' }}>
                                         {(page - 1) * limit + idx + 1}
                                     </td>
-                                    <td>
-                                        <div className="order-id-cell">
-                                            <span className="id-text">#{o?.id?.slice(0, 8)}</span>
-                                            <span className="date-text">{new Date(o.created_at).toLocaleDateString()}</span>
-                                        </div>
-                                    </td>
+
                                     <td>
                                         <div className="cust-cell">
                                             <p className="cust-name">{o?.customer_name}</p>
                                             <p className="cust-phone">{o?.customer_number}</p>
                                         </div>
                                     </td>
+                                    <td>
+                                        <div className="order-id-cell">
+                                            {/* <span className="id-text">#{o?.id?.slice(0, 8)}</span> */}
+                                            <span className="date-text">{new Date(o.created_at).toLocaleDateString()}</span>
+                                        </div>
+                                    </td>
                                     <td className="amount-cell">₹{Number(o?.total_price).toFixed(2)}</td>
                                     <td className="amount-cell" style={{ fontWeight: '600', color: Number(o?.amount_to_be_paid) > 0 ? '#dc2626' : '#059669' }}>
                                         ₹{Number(o?.amount_to_be_paid || 0).toFixed(2)}
                                     </td>
-                                    <td>
+                                    {/* <td>
                                         <span className={`badge ${STATUS_CLASSES[o?.order_status]}`}>
                                             {o?.order_status}
                                         </span>
-                                    </td>
+                                    </td> */}
                                     <td>
                                         <span className={`badge-pill ${PAY_CLASSES[mapPaymentStatus(o?.payment_status)]}`}>
                                             {mapPaymentStatus(o?.payment_status)}
