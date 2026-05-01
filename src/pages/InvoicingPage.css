@@ -498,7 +498,7 @@
 }
 
 /* Preview Modal */
-.preview-brand {
+/* .preview-brand {
     display: flex;
     align-items: center;
     gap: 12px;
@@ -581,6 +581,50 @@
     background: var(--bg);
     border-radius: var(--radius-sm);
     padding: 10px 14px;
+} */
+
+
+.sigmah-design { 
+    color: #000; 
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+}
+
+.s-info-row { 
+    display: flex; 
+    justify-content: space-between; 
+    font-size: 11px; 
+    margin-bottom: 2px; 
+}
+
+.s-table { 
+    width: 100%; 
+    border-collapse: collapse; 
+}
+
+.s-table th { 
+    border: 1px solid #000; 
+    padding: 6px; 
+    font-size: 11px; 
+    text-transform: capitalize;
+}
+
+.s-table td { 
+    border-left: 1px solid #000; 
+    border-right: 1px solid #000; 
+    padding: 4px; 
+    font-size: 12px; 
+}
+
+.s-total-row { 
+    display: flex; 
+    justify-content: space-between; 
+    padding: 5px 10px; 
+    font-size: 12px; 
+}
+
+.s-net-row { 
+    margin-top: 5px;
+    padding: 10px !important;
 }
 
 /* POS Terminal */
@@ -1120,4 +1164,4 @@ select.input {
     background-position: right 12px center !important;
     padding-right: 36px !important;
     cursor: pointer !important;
-}
+}

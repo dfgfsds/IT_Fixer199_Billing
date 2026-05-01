@@ -191,7 +191,7 @@ export default function CustomersPage() {
                 {/* <th>INVOICES</th>
                 <th style={{ textAlign: 'right' }}>TOTAL BILLED</th> */}
                 <th>STATUS</th>
-                <th>ACTIONS</th>
+                {/* <th>ACTIONS</th> */}
               </tr>
             </thead>
 
@@ -236,12 +236,12 @@ export default function CustomersPage() {
                     </span>
                   </td>
 
-                  <td>
+                  {/* <td>
                     <div style={{ display: 'flex', gap: 6 }}>
-                      {/* <button className="btn btn-outline btn-sm">📄 Invoice</button> */}
+
                       <button className="btn btn-ghost btn-sm">✏</button>
                     </div>
-                  </td>
+                  </td> */}
                 </tr>
               ))}
 
