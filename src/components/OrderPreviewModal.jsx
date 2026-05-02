@@ -55,7 +55,7 @@ const printInvoice = (orderData) => {
         .top-header { display: flex; border-bottom: 2px solid #000; height: 110px; }
         .logo-section { flex: 0 0 180px; padding: 10px; border-right: 2px solid #000; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; }
         .logo-text { font-weight: bold; font-size: 18px; color: #666; line-height: 1.1; }
-        .it-fixer { color: #28a745; font-size: 12px; font-weight: bold; margin-top: 5px; }
+        .it-fixer { color: #28a745; font-size: 18px; font-weight: bold; margin-top: 5px; }
         .company-info { flex: 1; text-align: center; padding: 10px; }
         .company-info h1 { margin: 0; font-size: 24px; font-weight: 900; letter-spacing: 1px; }
         .company-info p { margin: 2px 0; font-size: 10px; line-height: 1.4; }
@@ -85,14 +85,14 @@ const printInvoice = (orderData) => {
       <div class="main-container">
         <div class="top-header">
           <div class="logo-section">
-            <div class="logo-text">SIGMAH <br/> ENTERPRISES</div>
-            <div class="it-fixer">IT Fixer</div>
+            <div class="it-fixer">IT Fixer@199</div>
           </div>
           <div class="company-info">
-            <h1>SIGMAH ENTERPRISES</h1>
-            <p>New No.29 / Old No.31 & 32, Jafferkhanpet, Opp to Kasi Theatre,<br/>
-               Ashok Nagar, Chennai - 600083, <br/>
-               GST No:- 33NVOPK6133G1Z8, PH: 9994156516</p>
+            <h1>IT FIXER@199</h1>
+           
+            <p>  No.91, Ground Floor,  Kothari Nagar 2nd Main Road<br/>
+               Ramapuram, Chennai - 600089 <br/>
+                PH: 9385939985</p>
           </div>
         </div>
 
