@@ -252,121 +252,121 @@ const PAYMENT_STATUSES = [
 ];
 
 /* ─── Print Template ─── */
-function printInvoice({ customerName, customerEmail, customerNumber, invoiceNo, issueDate, items = [], subtotal = 0, taxAmount = 0, total = 0, notes, paymentType, paymentStatus, amountPaid = 0, address }) {
-    const remaining = Math.max(0, Number(total || 0) - Number(amountPaid || 0));
-    const invDate = issueDate || new Date().toLocaleDateString();
+// function printInvoice({ customerName, customerEmail, customerNumber, invoiceNo, issueDate, items = [], subtotal = 0, taxAmount = 0, total = 0, notes, paymentType, paymentStatus, amountPaid = 0, address }) {
+//     const remaining = Math.max(0, Number(total || 0) - Number(amountPaid || 0));
+//     const invDate = issueDate || new Date().toLocaleDateString();
 
-    const html = `<!DOCTYPE html><html><head><title></title>
-    <style>
-      body { font-family: 'Inter', system-ui, -apple-system, sans-serif; padding: 20px; color: #111; line-height: 1.5; }
-      .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; }
-      .logo-box { display: flex; align-items: center; gap: 12px; }
-      .logo-img { height: 40px; width: auto; object-fit: contain; }
-      .company-name { font-size: 20px; font-weight: 800; color: #111; letter-spacing: -0.5px; }
-      .sub { color: #6b7280; font-size: 11px; margin-top: 2px; }
-      .meta { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin-bottom: 30px; }
-      .ml { font-size: 9px; font-weight: 700; letter-spacing: 0.05em; color: #9ca3af; text-transform: uppercase; }
-      .mv { font-size: 13px; font-weight: 600; color: #1f2937; margin-top: 2px; }
-      table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
-      th { border-bottom: 2px solid #f3f4f6; padding: 10px 8px; text-align: left; font-size: 10px; font-weight: 700; color: #6b7280; text-transform: uppercase; }
-      td { padding: 10px 8px; border-bottom: 1px solid #f3f4f6; font-size: 12px; color: #374151; }
-      .totals { width: 250px; margin-left: auto; }
-      .row { display: flex; justify-content: space-between; padding: 4px 0; font-size: 12px; color: #4b5563; }
-      .tot { font-size: 16px; font-weight: 800; color: #111; border-top: 2px solid #111; padding-top: 8px; margin-top: 6px; }
-      .rem { color: #dc2626; font-weight: 700; }
-      .badge { display: inline-block; padding: 2px 8px; border-radius: 99px; font-size: 10px; font-weight: 700; text-transform: uppercase; }
-      .paid { background: #dcfce7; color: #166534; }
-      .pending { background: #fef9c3; color: #854d0e; }
-      .partial { background: #dbeafe; color: #1e40af; }
-      .footer { margin-top: 40px; font-size: 10px; color: #9ca3af; border-top: 1px solid #f3f4f6; padding-top: 15px; text-align: center; }
-      @media print {
-        body { padding: 1cm; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-        @page { margin: 0; }
-      }
-    </style></head><body>
-    <div class="header">
-        <div>
-            <div class="logo-box">
-                <img src="/logo.png" class="logo-img" onerror="this.style.display='none'"/>
-                <span class="company-name">ITFixer</span>
-            </div>
-            <div style="margin-top: 10px; font-size: 11px; color: #4b5563; line-height: 1.5;">
-                No.91, Ground Floor, Kothari Nagar 2nd Main Road,<br/>
-                Ramapuram, Chennai - 600089<br/>
-                Phone: 9385939985<br/>
-                Email: info@itfixer199.com
-            </div>
-        </div>
-    </div>
+//     const html = `<!DOCTYPE html><html><head><title></title>
+//     <style>
+//       body { font-family: 'Inter', system-ui, -apple-system, sans-serif; padding: 20px; color: #111; line-height: 1.5; }
+//       .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; }
+//       .logo-box { display: flex; align-items: center; gap: 12px; }
+//       .logo-img { height: 40px; width: auto; object-fit: contain; }
+//       .company-name { font-size: 20px; font-weight: 800; color: #111; letter-spacing: -0.5px; }
+//       .sub { color: #6b7280; font-size: 11px; margin-top: 2px; }
+//       .meta { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin-bottom: 30px; }
+//       .ml { font-size: 9px; font-weight: 700; letter-spacing: 0.05em; color: #9ca3af; text-transform: uppercase; }
+//       .mv { font-size: 13px; font-weight: 600; color: #1f2937; margin-top: 2px; }
+//       table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
+//       th { border-bottom: 2px solid #f3f4f6; padding: 10px 8px; text-align: left; font-size: 10px; font-weight: 700; color: #6b7280; text-transform: uppercase; }
+//       td { padding: 10px 8px; border-bottom: 1px solid #f3f4f6; font-size: 12px; color: #374151; }
+//       .totals { width: 250px; margin-left: auto; }
+//       .row { display: flex; justify-content: space-between; padding: 4px 0; font-size: 12px; color: #4b5563; }
+//       .tot { font-size: 16px; font-weight: 800; color: #111; border-top: 2px solid #111; padding-top: 8px; margin-top: 6px; }
+//       .rem { color: #dc2626; font-weight: 700; }
+//       .badge { display: inline-block; padding: 2px 8px; border-radius: 99px; font-size: 10px; font-weight: 700; text-transform: uppercase; }
+//       .paid { background: #dcfce7; color: #166534; }
+//       .pending { background: #fef9c3; color: #854d0e; }
+//       .partial { background: #dbeafe; color: #1e40af; }
+//       .footer { margin-top: 40px; font-size: 10px; color: #9ca3af; border-top: 1px solid #f3f4f6; padding-top: 15px; text-align: center; }
+//       @media print {
+//         body { padding: 1cm; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+//         @page { margin: 0; }
+//       }
+//     </style></head><body>
+//     <div class="header">
+//         <div>
+//             <div class="logo-box">
+//                 <img src="/logo.png" class="logo-img" onerror="this.style.display='none'"/>
+//                 <span class="company-name">ITFixer</span>
+//             </div>
+//             <div style="margin-top: 10px; font-size: 11px; color: #4b5563; line-height: 1.5;">
+//                 No.91, Ground Floor, Kothari Nagar 2nd Main Road,<br/>
+//                 Ramapuram, Chennai - 600089<br/>
+//                 Phone: 9385939985<br/>
+//                 Email: info@itfixer199.com
+//             </div>
+//         </div>
+//     </div>
 
-    <div class="meta">
-      <div>
-        <div class="ml">Customer</div>
-        <div class="mv">${customerName || 'Walk-in Customer'}</div>
-        <div class="mv" style="font-size:11px; color:#6b7280; font-weight:400;">${customerEmail || ''} ${customerNumber ? (customerEmail ? ' • ' : '') + customerNumber : ''}</div>
-        ${address ? `<div class="mv" style="font-size:11px; color:#6b7280; font-weight:400; margin-top:4px;">${address}</div>` : ''}
-      </div>
-      <div><div class="ml">Issue Date</div><div class="mv">${invDate}</div></div>
-      <div><div class="ml">Payment Method</div><div class="mv">${paymentType?.label || 'Cash'}</div></div>
-    </div>
+//     <div class="meta">
+//       <div>
+//         <div class="ml">Customer</div>
+//         <div class="mv">${customerName || 'Walk-in Customer'}</div>
+//         <div class="mv" style="font-size:11px; color:#6b7280; font-weight:400;">${customerEmail || ''} ${customerNumber ? (customerEmail ? ' • ' : '') + customerNumber : ''}</div>
+//         ${address ? `<div class="mv" style="font-size:11px; color:#6b7280; font-weight:400; margin-top:4px;">${address}</div>` : ''}
+//       </div>
+//       <div><div class="ml">Issue Date</div><div class="mv">${invDate}</div></div>
+//       <div><div class="ml">Payment Method</div><div class="mv">${paymentType?.label || 'Cash'}</div></div>
+//     </div>
 
-    <table>
-      <thead><tr><th>Items & Services</th><th style="text-align:center">Qty</th><th style="text-align:right">Price</th><th style="text-align:right">Subtotal</th></tr></thead>
-      <tbody>
-        ${(items || []).map(i => `
-          <tr>
-            <td>
-                <div style="font-weight:600">${i.name || 'Untitled Item'}</div>
-                ${i.serial_numbers?.length ? `<div style="font-size:9px; color:#6b7280; margin-top:2px">S/N: ${i.serial_numbers.join(', ')}</div>` : ''}
-            </td>
-            <td style="text-align:center">${i.qty || 1}</td>
-            <td style="text-align:right">₹${Number(i.price || 0)?.toFixed(2)}</td>
-            <td style="text-align:right; font-weight:600">₹${(Number(i.qty || 1) * Number(i.price || 0))?.toFixed(2)}</td>
-          </tr>
-        `).join('')}
-      </tbody>
-    </table>
+//     <table>
+//       <thead><tr><th>Items & Services</th><th style="text-align:center">Qty</th><th style="text-align:right">Price</th><th style="text-align:right">Subtotal</th></tr></thead>
+//       <tbody>
+//         ${(items || []).map(i => `
+//           <tr>
+//             <td>
+//                 <div style="font-weight:600">${i.name || 'Untitled Item'}</div>
+//                 ${i.serial_numbers?.length ? `<div style="font-size:9px; color:#6b7280; margin-top:2px">S/N: ${i.serial_numbers.join(', ')}</div>` : ''}
+//             </td>
+//             <td style="text-align:center">${i.qty || 1}</td>
+//             <td style="text-align:right">₹${Number(i.price || 0)?.toFixed(2)}</td>
+//             <td style="text-align:right; font-weight:600">₹${(Number(i.qty || 1) * Number(i.price || 0))?.toFixed(2)}</td>
+//           </tr>
+//         `).join('')}
+//       </tbody>
+//     </table>
 
-    <div class="totals">
-      <div class="row"><span>Subtotal</span><span>₹${Number(subtotal || 0)?.toFixed(2)}</span></div>
-      <div class="row"><span>CGST/SGST (incl.)</span><span>₹${Number(taxAmount || 0)?.toFixed(2)}</span></div>
-      <div class="row tot"><span>Total Amount</span><span>₹${Number(total || 0)?.toFixed(2)}</span></div>
-      <div class="row" style="margin-top: 8px;"><span>Amount Paid</span><span style="font-weight:600; color:#059669">₹${Number(amountPaid || 0)?.toFixed(2)}</span></div>
-      ${remaining > 0 ? `<div class="row rem"><span>Balance Due</span><span>₹${remaining?.toFixed(2)}</span></div>` : ''}
-    </div>
+//     <div class="totals">
+//       <div class="row"><span>Subtotal</span><span>₹${Number(subtotal || 0)?.toFixed(2)}</span></div>
+//       <div class="row"><span>CGST/SGST (incl.)</span><span>₹${Number(taxAmount || 0)?.toFixed(2)}</span></div>
+//       <div class="row tot"><span>Total Amount</span><span>₹${Number(total || 0)?.toFixed(2)}</span></div>
+//       <div class="row" style="margin-top: 8px;"><span>Amount Paid</span><span style="font-weight:600; color:#059669">₹${Number(amountPaid || 0)?.toFixed(2)}</span></div>
+//       ${remaining > 0 ? `<div class="row rem"><span>Balance Due</span><span>₹${remaining?.toFixed(2)}</span></div>` : ''}
+//     </div>
 
-    ${notes ? `<div style="margin-top:30px; font-size:12px; color:#4b5563; border-left: 3px solid #e5e7eb; padding-left: 12px;"><b>Notes:</b><br/>${notes}</div>` : ''}
+//     ${notes ? `<div style="margin-top:30px; font-size:12px; color:#4b5563; border-left: 3px solid #e5e7eb; padding-left: 12px;"><b>Notes:</b><br/>${notes}</div>` : ''}
     
-    <div class="footer">
-        Thank you for choosing ITFixer!<br/>
-        © ${new Date().getFullYear()} ITFixer. All Rights Reserved.
-    </div>
-    </body></html>`;
+//     <div class="footer">
+//         Thank you for choosing ITFixer!<br/>
+//         © ${new Date().getFullYear()} ITFixer. All Rights Reserved.
+//     </div>
+//     </body></html>`;
 
-    // Create a hidden iframe
-    const iframe = document.createElement('iframe');
-    iframe.style.position = 'fixed';
-    iframe.style.right = '0';
-    iframe.style.bottom = '0';
-    iframe.style.width = '0';
-    iframe.style.height = '0';
-    iframe.style.border = '0';
-    document.body.appendChild(iframe);
+//     // Create a hidden iframe
+//     const iframe = document.createElement('iframe');
+//     iframe.style.position = 'fixed';
+//     iframe.style.right = '0';
+//     iframe.style.bottom = '0';
+//     iframe.style.width = '0';
+//     iframe.style.height = '0';
+//     iframe.style.border = '0';
+//     document.body.appendChild(iframe);
 
-    const doc = iframe.contentWindow.document;
-    doc.open();
-    doc.write(html);
-    doc.close();
+//     const doc = iframe.contentWindow.document;
+//     doc.open();
+//     doc.write(html);
+//     doc.close();
 
-    // Trigger print
-    iframe.contentWindow.focus();
-    setTimeout(() => {
-        iframe.contentWindow.print();
-        setTimeout(() => {
-            document.body.removeChild(iframe);
-        }, 1000);
-    }, 500);
-}
+//     // Trigger print
+//     iframe.contentWindow.focus();
+//     setTimeout(() => {
+//         iframe.contentWindow.print();
+//         setTimeout(() => {
+//             document.body.removeChild(iframe);
+//         }, 1000);
+//     }, 500);
+// }
 
 // /* ─── Preview Modal ─── */
 // function PreviewModal({ open, onClose, data, onPrint }) {
@@ -420,9 +420,205 @@ function printInvoice({ customerName, customerEmail, customerNumber, invoiceNo, 
 //         </div>
 //     );
 // }
+const printInvoice = (orderData) => {
+    console.log(orderData)
+    const { customerName, customerNumber, customerGst, invoiceNo, issueDate, items = [] } = orderData;
+
+    // Logic and Calculations
+    const totalQty = items.reduce((acc, curr) => acc + parseInt(curr?.qty || 0), 0);
+    const totalDiscount = items.reduce((acc, curr) => acc + (parseFloat(curr?.discount || 0)), 0);
+
+    const netAmount = items.reduce((acc, item) => {
+        const qty = parseFloat(item?.qty || 0);
+        const price = parseFloat(item?.price || 0);
+        const disc = parseFloat(item?.discount || 0);
+        return acc + (qty * price - disc);
+    }, 0);
+
+    const taxableValue = netAmount / 1.18;
+    const totalGst = netAmount - taxableValue;
+    const cgst_sgst = totalGst / 2;
+
+    const itemsCount = items.length;
+    const emptyRowsNeeded = Math.max(0, 15 - itemsCount); // Kept the 15 rows logic from first code
+
+    const numberToWords = (num) => {
+        const a = ['', 'One ', 'Two ', 'Three ', 'Four ', 'Five ', 'Six ', 'Seven ', 'Eight ', 'Nine ', 'Ten ', 'Eleven ', 'Twelve ', 'Thirteen ', 'Fourteen ', 'Fifteen ', 'Sixteen ', 'Seventeen ', 'Eighteen ', 'Nineteen '];
+        const b = ['', '', 'Twenty', 'Thirty', 'Forty', 'Fifty', 'Sixty', 'Seventy', 'Eighty', 'Ninety'];
+        if ((num = num.toString()).length > 9) return 'overflow';
+        let n = ('000000000' + num).substr(-9).match(/^(\d{2})(\d{2})(\d{2})(\d{1})(\d{2})$/);
+        if (!n) return '';
+        let str = '';
+        str += (Number(n[1]) !== 0) ? (a[Number(n[1])] || b[n[1][0]] + ' ' + a[n[1][1]]) + 'Crore ' : '';
+        str += (Number(n[2]) !== 0) ? (a[Number(n[2])] || b[n[2][0]] + ' ' + a[n[2][1]]) + 'Lakh ' : '';
+        str += (Number(n[3]) !== 0) ? (a[Number(n[3])] || b[n[3][0]] + ' ' + a[n[3][1]]) + 'Thousand ' : '';
+        str += (Number(n[4]) !== 0) ? (a[Number(n[4])] || b[n[4][0]] + ' ' + a[n[4][1]]) + 'Hundred ' : '';
+        str += (Number(n[5]) !== 0) ? ((str !== '') ? 'and ' : '') + (a[Number(n[5])] || b[n[5][0]] + ' ' + a[n[5][1]]) + 'Rs. Only' : '';
+        return str;
+    };
+
+    const html = `
+    <html>
+    <head>
+      <title>Invoice - SIGMAH ENTERPRISES</title>
+      <style>
+        @page { size: A4; margin: 0; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; padding: 10mm; background: #fff; color: #000; }
+        .main-container { border: 2px solid #000; width: 190mm; height: 277mm; margin: 0 auto; display: flex; flex-direction: column; box-sizing: border-box; }
+        .top-header { display: flex; border-bottom: 2px solid #000; height: 110px; }
+        .logo-section { flex: 0 0 180px; padding: 10px; border-right: 2px solid #000; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; }
+        .logo-text { font-weight: bold; font-size: 18px; color: #666; line-height: 1.1; }
+        .it-fixer { color: #28a745; font-size: 12px; font-weight: bold; margin-top: 5px; }
+        .company-info { flex: 1; text-align: center; padding: 10px; }
+        .company-info h1 { margin: 0; font-size: 24px; font-weight: 900; letter-spacing: 1px; }
+        .company-info p { margin: 2px 0; font-size: 10px; line-height: 1.4; }
+        .bill-details { display: grid; grid-template-columns: 1.5fr 1fr; border-bottom: 2px solid #000; min-height: 100px; }
+        .to-section { padding: 10px; border-right: 2px solid #000; font-size: 11px; }
+        .no-section table { width: 100%; border-collapse: collapse; font-size: 11px; }
+        .no-section td { padding: 5px 8px; }
+        .items-container { flex-grow: 1; border-bottom: 2px solid #000; }
+        .bill-table { width: 100%; border-collapse: collapse; table-layout: fixed; height: 100%;}
+        .bill-table th { border-right: 1px solid #000; padding: 8px; font-size: 11px; border-bottom: 2px solid #000; background: #fff; font-weight: bold; text-align: center; }
+        .bill-table td { border-right: 1px solid #000; padding: 6px; font-size: 11px; vertical-align: top; }
+        .bill-table th:last-child, .bill-table td:last-child { border-right: none; }
+        .text-right { text-align: right; }
+        .text-center { text-align: center; }
+        .total-row { border-top: 2px solid #000; font-weight: bold; }
+        .summary-section { display: grid; grid-template-columns: 1.5fr 1fr; border-bottom: 2px solid #000; }
+        .summary-left { padding: 10px; border-right: 2px solid #000; font-size: 11px; }
+        .summary-right table { width: 100%; border-collapse: collapse; font-size: 11px; }
+        .summary-right td { padding: 5px 10px; border-bottom: 1px solid #000; border-left: 1px solid #000; }
+        .gst-table { width: 100%; border-collapse: collapse; font-size: 10px; text-align: center; }
+        .gst-table td, .gst-table th { border: 1px solid #000; padding: 4px; }
+        .signature-section { margin-top: auto; padding: 15px; display: flex; justify-content: space-between; align-items: flex-end; }
+        .sig-box { width: 200px; text-align: center; border-top: 1.5px solid #000; padding-top: 5px; font-size: 10px; font-weight: bold; }
+      </style>
+    </head>
+    <body>
+      <div class="main-container">
+        <div class="top-header">
+          <div class="logo-section">
+            <div class="logo-text">SIGMAH <br/> ENTERPRISES</div>
+            <div class="it-fixer">IT Fixer</div>
+          </div>
+          <div class="company-info">
+            <h1>SIGMAH ENTERPRISES</h1>
+            <p>New No.29 / Old No.31 & 32, Jafferkhanpet, Opp to Kasi Theatre,<br/>
+               Ashok Nagar, Chennai - 600083, <br/>
+               GST No:- 33NVOPK6133G1Z8, PH: 9994156516</p>
+          </div>
+        </div>
+
+        <div class="bill-details">
+          <div class="to-section">
+            <b>To:</b><br/>
+            ${customerName?.toUpperCase()}<br/>
+            PHN: ${customerNumber} | GST: ${customerGst || 'N/A'}
+          </div>
+          <div class="no-section">
+            <table>
+              <tr><td><b>Bill No</b></td><td>: ${invoiceNo || 'N/A'}</td></tr>
+              <tr><td><b>Date</b></td><td>: ${issueDate || new Date().toLocaleDateString('en-GB')}</td></tr>
+            </table>
+          </div>
+        </div>
+
+        <div class="items-container">
+          <table class="bill-table">
+            <thead>
+              <tr>
+                <th width="40">S.NO</th>
+                <th>DESCRIPTION</th>
+                <th width="60">HSN</th>
+                <th width="40">QTY</th>
+                <th width="80">RATE</th>
+                <th width="70">CGST@9%</th>
+                <th width="70">SGST@9%</th>
+                <th width="90">AMOUNT</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${items.map((item, index) => {
+        const qty = parseFloat(item?.qty || 0);
+        const rate = parseFloat(item?.price || 0);
+        const itemGross = qty * rate;
+        const itemTaxable = itemGross / 1.18;
+        const itemTax = (itemGross - itemTaxable) / 2;
+        return `
+                <tr>
+                  <td class="text-center">${index + 1}</td>
+                  <td><b>${item?.name || 'Product'}</b></td>
+                  <td class="text-center">${item?.hsn || ''}</td>
+                  <td class="text-center">${qty}</td>
+                  <td class="text-right">${rate.toFixed(2)}</td>
+                  <td class="text-right">${itemTax.toFixed(2)}</td>
+                  <td class="text-right">${itemTax.toFixed(2)}</td>
+                  <td class="text-right">${itemTaxable.toFixed(2)}</td>
+                </tr>`
+    }).join("")}
+              
+              ${Array(emptyRowsNeeded).fill(0).map(() => `<tr><td>&nbsp;</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>`).join("")}
+
+              <tr class="total-row">
+                <td colspan="3" class="text-center">Tot.Qty: ${totalQty}</td>
+                <td colspan="2" class="text-center">Gross Amount</td>
+                <td class="text-right">${cgst_sgst.toFixed(2)}</td>
+                <td class="text-right">${cgst_sgst.toFixed(2)}</td>
+                <td class="text-right">${taxableValue.toFixed(2)}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="summary-section">
+          <div class="summary-left">
+            <b>Amount In Words:</b><br/>
+            [${numberToWords(Math.round(netAmount))}]
+          </div>
+          <div class="summary-right">
+            <table>
+              <tr><td>Discount</td><td class="text-right">${totalDiscount.toFixed(2)}</td></tr>
+              <tr><td>GST Amount</td><td class="text-right">${totalGst.toFixed(2)}</td></tr>
+              <tr><td>Round Off</td><td class="text-right">0.00</td></tr>
+              <tr style="font-weight: bold; font-size: 13px; background: #eee;">
+                <td>Net Amount</td><td class="text-right">₹ ${netAmount.toFixed(2)}</td>
+              </tr>
+            </table>
+            <table class="gst-table">
+              <tr><th>GST %</th><th>GST Amt</th><th>Goods Value</th></tr>
+              <tr><td>18%</td><td>${totalGst.toFixed(2)}</td><td>${taxableValue.toFixed(2)}</td></tr>
+            </table>
+          </div>
+        </div>
+
+        <div class="signature-section">
+          <div class="sig-box">Customer Signature</div>
+          <div style="text-align: right;">
+            <div style="font-weight: bold; font-size: 12px; margin-bottom: 45px;">For SIGMAH ENTERPRISES</div>
+            <div class="sig-box" style="margin-left: auto;">Authorised Signatory</div>
+          </div>
+        </div>
+      </div>
+    </body>
+    </html>`;
+
+    const iframe = document.createElement('iframe');
+    iframe.style.display = 'none';
+    document.body.appendChild(iframe);
+    const doc = iframe.contentWindow.document;
+    doc.open();
+    doc.write(html);
+    doc.close();
+    setTimeout(() => {
+        iframe.contentWindow.print();
+        document.body.removeChild(iframe);
+    }, 500);
+};
+
 
 /* ─── Sigmah Style Preview Modal (Clean Version) ─── */
 function PreviewModal({ open, onClose, data, resetForm }) {
+    console.log(data)
     if (!open) return null;
 
     const {
@@ -452,10 +648,10 @@ function PreviewModal({ open, onClose, data, resetForm }) {
     const cgst_sgst = totalGst / 2;
     // --- UPDATED LOGIC END ---
     const netAmountWithOutGst = items.reduce((acc, item) => {
-    const gross = item.qty * item.price;
-    const taxable = gross / 1.18;
-    return acc + taxable;
-}, 0);
+        const gross = item.qty * item.price;
+        const taxable = gross / 1.18;
+        return acc + taxable;
+    }, 0);
 
 
     return (
@@ -519,7 +715,7 @@ function PreviewModal({ open, onClose, data, resetForm }) {
                             <div style={{ padding: '8px', borderRight: '2px solid #000' }}>
                                 <div style={{ fontSize: '12px' }}><b>To:</b> {customerName}</div>
                                 <div style={{ fontSize: '12px' }}><b>PH:</b> {customerNumber}</div>
-                                <div style={{ fontSize: '10px' }}>{customerAddress}</div>
+                                <div style={{ fontSize: '10px' }}><b>GST:</b>{customerGst}</div>
                             </div>
                             <div style={{ padding: '8px', fontSize: '12px' }}>
                                 <div style={{ display: 'flex' }}><span>Bill No :</span> <span>{invoiceNo}</span></div>
@@ -615,7 +811,13 @@ function PreviewModal({ open, onClose, data, resetForm }) {
                 </div>
 
                 <div className="no-print" style={{ padding: '20px', textAlign: 'right' }}>
-                    <button onClick={handlePrint} style={{ background: '#2563eb', color: '#fff', border: 'none', padding: '10px 30px', borderRadius: '4px', cursor: 'pointer', fontWeight: 'bold' }}>
+                    <button
+                    //  onClick={handlePrint} 
+                       onClick={() =>
+                            // window.print()
+                            printInvoice(data)
+                        }
+                     style={{ background: '#2563eb', color: '#fff', border: 'none', padding: '10px 30px', borderRadius: '4px', cursor: 'pointer', fontWeight: 'bold' }}>
                         Print Invoice
                     </button>
                 </div>
@@ -623,6 +825,7 @@ function PreviewModal({ open, onClose, data, resetForm }) {
         </div>
     );
 }
+
 /* ─── Manual Confirmation Modal (Cash / fallback) ─── */
 function ManualConfirmModal({ open, onClose, onConfirm, total, isFallback }) {
     const [cashGiven, setCashGiven] = useState('');
@@ -839,9 +1042,9 @@ export default function InvoicingPage() {
     const [allCategories, setAllCategories] = useState([]);
     const [allProducts, setAllProducts] = useState([]);
     const { user } = useAuth();
-  
+
     const hubId = user?.hubs?.[0]?.id || user?.hub_id;
-      console.log(hubId)
+    console.log(hubId)
     const [poData, setPoData] = useState();
     const [loading, setLoading] = useState(false);
     // Old amountPaid state-ah remove pannittu ithu rendu add pannu
@@ -922,7 +1125,7 @@ export default function InvoicingPage() {
         setPaymentStatus(PAYMENT_STATUSES[0]);
     };
 
-    const invoiceData = { customerName, customerEmail, customerNumber, invoiceNo, issueDate, items, subtotal, taxAmount, total, notes, paymentType, paymentStatus, amountPaid: paidNum };
+    const invoiceData = { customerName, customerEmail, customerNumber,customerGst, invoiceNo, issueDate, items, subtotal, taxAmount, total, notes, paymentType, paymentStatus, amountPaid: paidNum };
 
     const handleCheckout = () => {
         if (!paymentType) return alert('Please select a payment type first.');
