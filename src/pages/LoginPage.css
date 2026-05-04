@@ -224,3 +224,44 @@
     margin-top: 10px;
     line-height: 1.6;
 }
+
+.login-select {
+    width: 100%;
+    padding: 11px 12px 11px 36px;
+    border: 1.5px solid var(--border);
+    border-radius: 8px;
+    font-size: 14px;
+    outline: none;
+    background: #fafafa;
+    appearance: none; /* Default arrow-ah remove panna */
+    cursor: pointer;
+    color: var(--text-dark);
+}
+
+.login-select:focus {
+    border-color: var(--primary-mid);
+    background: #fff;
+}
+
+/* Dropdown arrow custom look (Optional) */
+.login-input-wrap::after {
+    content: '▾';
+    position: absolute;
+    right: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    pointer-events: none;
+    color: var(--text-light);
+}
+
+.login-error {
+    color: #ff6b6b; 
+    background-color: rgba(255, 107, 107, 0.1); 
+    padding: 10px 15px; 
+    border-radius: 8px; 
+    font-size: 13px; 
+    margin: 15px 28px 0; /* Align with form padding */
+    display: flex; 
+    align-items: center; 
+    gap: 8px;
+}

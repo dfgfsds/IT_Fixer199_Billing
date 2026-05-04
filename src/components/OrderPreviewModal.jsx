@@ -2,14 +2,15 @@ import React, { useEffect, useState } from 'react';
 import './OrderPreviewModal.css';
 import axiosInstance from '../configs/axios-middleware';
 import Api from "../api-endpoints/ApiUrls";
-
+import Logo from "../../src/assets/logo2.png"
 /**
  * Shared Professional Invoice Preview Modal
  * Upgraded to fetch full details by ID for accurate billing records.
  */
 
 const printInvoice = (orderData) => {
-    const { customerName, customerNumber, customerGst, invoiceNo, issueDate, items = [] } = orderData;
+    console.log(orderData)
+    const { customerName, customerNumber, customer_gst, invoiceNo, issueDate, items = [] } = orderData;
 
     // Logic and Calculations
     const totalQty = items.reduce((acc, curr) => acc + parseInt(curr?.qty || 0), 0);
@@ -44,63 +45,208 @@ const printInvoice = (orderData) => {
         return str;
     };
 
+    const logoSrc = Logo;
+
     const html = `
     <html>
     <head>
       <title>Invoice - SIGMAH ENTERPRISES</title>
       <style>
-        @page { size: A4; margin: 0; }
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; padding: 10mm; background: #fff; color: #000; }
-        .main-container { border: 2px solid #000; width: 190mm; height: 277mm; margin: 0 auto; display: flex; flex-direction: column; box-sizing: border-box; }
-        .top-header { display: flex; border-bottom: 2px solid #000; height: 110px; }
-        .logo-section { flex: 0 0 180px; padding: 10px; border-right: 2px solid #000; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; }
-        .logo-text { font-weight: bold; font-size: 18px; color: #666; line-height: 1.1; }
-        .it-fixer { color: #28a745; font-size: 18px; font-weight: bold; margin-top: 5px; }
-        .company-info { flex: 1; text-align: center; padding: 10px; }
-        .company-info h1 { margin: 0; font-size: 24px; font-weight: 900; letter-spacing: 1px; }
-        .company-info p { margin: 2px 0; font-size: 10px; line-height: 1.4; }
-        .bill-details { display: grid; grid-template-columns: 1.5fr 1fr; border-bottom: 2px solid #000; min-height: 100px; }
-        .to-section { padding: 10px; border-right: 2px solid #000; font-size: 11px; }
-        .no-section table { width: 100%; border-collapse: collapse; font-size: 11px; }
-        .no-section td { padding: 5px 8px; }
-        .items-container { flex-grow: 1; border-bottom: 2px solid #000; }
-        .bill-table { width: 100%; border-collapse: collapse; table-layout: fixed; height: 100%;}
-        .bill-table th { border-right: 1px solid #000; padding: 8px; font-size: 11px; border-bottom: 2px solid #000; background: #fff; font-weight: bold; text-align: center; }
-        .bill-table td { border-right: 1px solid #000; padding: 6px; font-size: 11px; vertical-align: top; }
-        .bill-table th:last-child, .bill-table td:last-child { border-right: none; }
-        .text-right { text-align: right; }
-        .text-center { text-align: center; }
-        .total-row { border-top: 2px solid #000; font-weight: bold; }
-        .summary-section { display: grid; grid-template-columns: 1.5fr 1fr; border-bottom: 2px solid #000; }
-        .summary-left { padding: 10px; border-right: 2px solid #000; font-size: 11px; }
-        .summary-right table { width: 100%; border-collapse: collapse; font-size: 11px; }
-        .summary-right td { padding: 5px 10px; border-bottom: 1px solid #000; border-left: 1px solid #000; }
-        .gst-table { width: 100%; border-collapse: collapse; font-size: 10px; text-align: center; }
-        .gst-table td, .gst-table th { border: 1px solid #000; padding: 4px; }
-        .signature-section { margin-top: auto; padding: 15px; display: flex; justify-content: space-between; align-items: flex-end; }
-        .sig-box { width: 200px; text-align: center; border-top: 1.5px solid #000; padding-top: 5px; font-size: 10px; font-weight: bold; }
+      @page { size: A4; margin: 0; }
+
+body {
+  font-family: 'Segoe UI', sans-serif;
+  margin: 0;
+  padding: 10mm;
+  background: #fff;
+}
+
+.main-container {
+  border: 1px solid #000;
+  width: 190mm;
+  height: 277mm;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+}
+
+/* HEADER */
+.top-header {
+  border-bottom: 1px solid #000;
+  text-align: center;
+  padding: 10px;
+}
+
+.company-info h1 {
+  margin: 0;
+  font-size: 22px;
+  font-weight: bold;
+}
+
+.company-info p {
+  font-size: 10px;
+  margin: 2px 0;
+}
+
+/* BILL DETAILS */
+.bill-details {
+  display: grid;
+  grid-template-columns: 1.6fr 1fr;
+  border-bottom: 1px solid #000;
+}
+
+.to-section {
+  padding: 10px;
+  border-right: 1px solid #000;
+  font-size: 11px;
+}
+
+.no-section table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.no-section td {
+  padding: 6.5px;
+}
+
+/* TABLE */
+.items-container {
+  flex: 1;
+  border-bottom: 1px solid #000;
+}
+
+.bill-table {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed;
+  height: 100%;
+}
+
+.bill-table th,
+.bill-table td {
+  border: 1px solid #000;   /* 🔥 SAME BORDER EVERYWHERE */
+  padding: 6.5px;
+  font-size: 11px;
+}
+
+.bill-table th {
+  text-align: center;
+  font-weight: bold;
+}
+
+.text-center { text-align: center; }
+.text-right { text-align: right; }
+
+/* TOTAL ROW */
+.total-row td {
+  font-weight: bold;
+}
+
+/* SUMMARY */
+.summary-section {
+  display: grid;
+  grid-template-columns: 1.5fr 1fr;
+  border-bottom: 1px solid #000;
+}
+
+.summary-left {
+  padding: 10px;
+  font-size: 11px;
+}
+
+.summary-right table {
+  width: 96%;
+  border-collapse: collapse;
+  margin-left:10px;
+}
+
+.summary-right td {
+  border: 1px solid #000;
+  padding: 6px;
+    font-size: 10px;
+}
+
+.net-amount-row {
+  background: #eee;
+  /* Table cell borders-ah bold-ah connect panna */
+  border-top: 1px solid #000;
+  border-bottom: 1px solid #000;
+}
+
+.net-amount-label, 
+.net-amount-value {
+  font-weight: 800 !important; /* Nalla bold-ah iruka */
+  font-size: 15px !important;
+  padding: 8px 10px !important;
+}
+
+.net-amount-label {
+  text-align: left;
+}
+
+.net-amount-value {
+  text-align: right;
+  /* Left border bold-ah iruka */
+  border-left: 2px solid #000; 
+}
+
+/* GST TABLE */
+.gst-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 5px;
+font-weight: 600; 
+  font-size: 10px;
+}
+
+.gst-table th,
+.gst-table td {
+  border: 1px solid #000;
+  padding: 5px;
+  text-align: center;
+}
+
+/* SIGNATURE */
+.signature-section {
+  display: flex;
+  justify-content: space-between;
+  padding: 15px;
+}
+
+.sig-box {
+  border-top: 1px solid #000;
+  width: 200px;
+  text-align: center;
+  font-size: 10px;
+  padding-top: 5px;
+}
       </style>
     </head>
     <body>
       <div class="main-container">
         <div class="top-header">
-          <div class="logo-section">
-            <div class="it-fixer">IT Fixer@199</div>
-          </div>
+         
           <div class="company-info">
-            <h1>IT FIXER@199</h1>
-           
+            <h1>FTDS INDIA PRIVATE LIMITED</h1>
             <p>  No.91, Ground Floor,  Kothari Nagar 2nd Main Road<br/>
                Ramapuram, Chennai - 600089 <br/>
-                PH: 9385939985</p>
+                PH: 9385939985 <br/>
+                GST: 33AAGCF5828A1Z0
+                </p>
           </div>
         </div>
 
         <div class="bill-details">
           <div class="to-section">
             <b>To:</b><br/>
-            ${customerName?.toUpperCase()}<br/>
-            PHN: ${customerNumber} | GST: ${customerGst || 'N/A'}
+            ${customerName?.toUpperCase()} HARDWARE<br/>
+            ADDRESS:126 B, Vanniar Street, Bangaru Colony,<br/>
+K.K.Nagar Chennai – 600078
+ ${customer_gst ? `<br/>
+    GST: ${customer_gst}` : ''}<br/>
+    PHN: ${customerNumber}<br/>
           </div>
           <div class="no-section">
             <table>
@@ -135,12 +281,12 @@ const printInvoice = (orderData) => {
                 <tr>
                   <td class="text-center">${index + 1}</td>
                   <td><b>${item?.name || 'Product'}</b></td>
-                  <td class="text-center">${item?.hsn || ''}</td>
-                  <td class="text-center">${qty}</td>
-                  <td class="text-right">${rate.toFixed(2)}</td>
-                  <td class="text-right">${itemTax.toFixed(2)}</td>
-                  <td class="text-right">${itemTax.toFixed(2)}</td>
-                  <td class="text-right">${itemTaxable.toFixed(2)}</td>
+                  <td class="text-center"><b>${item?.hsn || ''}</b></td>
+                  <td class="text-center"><b>${qty}</b></td>
+                  <td class="text-right"><b>${rate.toFixed(2)}</b></td>
+                  <td class="text-right"><b>${itemTax.toFixed(2)}</b></td>
+                  <td class="text-right"><b>${itemTax.toFixed(2)}</b></td>
+                  <td class="text-right"><b>${itemTaxable.toFixed(2)}</b></td>
                 </tr>`
     }).join("")}
               
@@ -160,20 +306,31 @@ const printInvoice = (orderData) => {
         <div class="summary-section">
           <div class="summary-left">
             <b>Amount In Words:</b><br/>
-            [${numberToWords(Math.round(netAmount))}]
+            [${numberToWords(Math.round(netAmount))}]<br/>
+
+              <b>Tearms & Conditions:</b><br/>
+         1. Payments Should be made via Bank Transfer/Cheque with credit period of 60 days
+from the date of shipment.<br/>
+2. Ownership of the equipment transfers to the buyer.<br/>
+3. Risk of loss or damage to the equipment passes to the buyer upon delivery.<br/>
+4. Warranty must be claimed from the authorized service centre only.<br/>
+5.Goods once sold, will not be taken back.<br/>
+
+            
           </div>
           <div class="summary-right">
             <table>
               <tr><td>Discount</td><td class="text-right">${totalDiscount.toFixed(2)}</td></tr>
               <tr><td>GST Amount</td><td class="text-right">${totalGst.toFixed(2)}</td></tr>
               <tr><td>Round Off</td><td class="text-right">0.00</td></tr>
-              <tr style="font-weight: bold; font-size: 13px; background: #eee;">
-                <td>Net Amount</td><td class="text-right">₹ ${netAmount.toFixed(2)}</td>
-              </tr>
+            <tr class="net-amount-row">
+  <td class="net-amount-label">Net Amount</td>
+  <td class="text-right net-amount-value">₹ ${netAmount.toFixed(2)}</td>
+</tr>
             </table>
             <table class="gst-table">
-              <tr><th>GST %</th><th>GST Amt</th><th>Goods Value</th></tr>
-              <tr><td>18%</td><td>${totalGst.toFixed(2)}</td><td>${taxableValue.toFixed(2)}</td></tr>
+              <tr><th>GST %</th><th>Goods Value</th><th>GST Amt</th></tr>
+              <tr><td>18%</td><td>${taxableValue.toFixed(2)}</td><td>${totalGst.toFixed(2)}</td></tr>
             </table>
           </div>
         </div>
@@ -181,7 +338,7 @@ const printInvoice = (orderData) => {
         <div class="signature-section">
           <div class="sig-box">Customer Signature</div>
           <div style="text-align: right;">
-            <div style="font-weight: bold; font-size: 12px; margin-bottom: 45px;">For SIGMAH ENTERPRISES</div>
+            <div style="font-weight: bold; font-size: 12px; margin-bottom: 45px;">For FTDS INDIA PRIVATE LIMITED</div>
             <div class="sig-box" style="margin-left: auto;">Authorised Signatory</div>
           </div>
         </div>
@@ -202,6 +359,7 @@ const printInvoice = (orderData) => {
     }, 500);
 };
 
+
 const OrderPreviewModal = ({ open, onClose, orderId }) => {
     const [data, setData] = useState(null);
     const [loading, setLoading] = useState(false);
@@ -219,13 +377,14 @@ const OrderPreviewModal = ({ open, onClose, orderId }) => {
             const mappedItems = (o.items || []).map(i => ({
                 name: i.item_details?.name || i.name || 'Product',
                 qty: Number(i.quantity || 1),
-                price: Number(i.selling_price || i.price || 0),
+                price: Number(i.price),
                 discount: Number(i.discount || 0),
                 hsn: i.hsn || 'hsn_001'
             }));
 
             setData({
                 customerName: o.customer_name,
+                customer_gst: o?.customer_gst,
                 customerNumber: o.customer_number,
                 customerAddress: o.customer_address || "Address not provided",
                 invoiceNo: o.invoice_number || o.id?.slice(0, 8).toUpperCase(),
@@ -318,16 +477,15 @@ const OrderPreviewModal = ({ open, onClose, orderId }) => {
 
                         {/* HEADER */}
                         <div style={{ display: 'flex', borderBottom: '2px solid #000' }}>
-                            <div style={{ flex: '0 0 160px', padding: '10px', borderRight: '2px solid #000', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                                <div style={{ background: '#0056b3', color: '#fff', padding: '10px', fontWeight: 'bold', textAlign: 'center', borderRadius: '4px', width: '100%' }}>
-                                    SIGMAH <br /> ENTERPRISES
-                                    <div style={{ color: '#90ee90', fontSize: '10px' }}>IT Fixer</div>
+                            {/* <div style={{ flex: '0 0 160px', padding: '10px', borderRight: '2px solid #000', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                <div style={{ padding: '10px', fontWeight: 'bold', textAlign: 'center', borderRadius: '4px', width: '100%' }}>
+                                    <img src={Logo} />
                                 </div>
-                            </div>
+                            </div> */}
                             <div style={{ flex: 1, textAlign: 'center', padding: '10px' }}>
-                                <h2 style={{ margin: '0', fontSize: '24px', fontWeight: '900' }}>SIGMAH ENTERPRISES</h2>
-                                <div style={{ fontSize: '11px' }}>New No.29 / Old No.31 & 32, Jafferkhanpet, Chennai - 600083</div>
-                                <div style={{ fontSize: '11px' }}>GST No: 33NVOPK6133G1Z8 | Email: itfixer7@gmail.com</div>
+                                <h2 style={{ margin: '0', fontSize: '24px', fontWeight: '900' }}>FTDS INDIA PRIVATE LIMITED</h2>
+                                <div style={{ fontSize: '11px' }}>No.91, Ground Floor, Kothari Nagar 2nd Main Road,Ramapuram, Chennai - 600089</div>
+                                <div style={{ fontSize: '11px' }}>GST No: 33AAGCF5828A1Z0 | PH: 9385939985</div>
                             </div>
                         </div>
 
@@ -417,8 +575,13 @@ const OrderPreviewModal = ({ open, onClose, orderId }) => {
 
                                 <div style={{ fontSize: '9px', lineHeight: '1.3' }}>
                                     <b>Terms & Conditions:</b><br />
-                                    1. Payments via Bank Transfer/Cheque.<br />
-                                    2. Goods once sold not returnable.
+                                    1. Payments Should be made via Bank Transfer/Cheque with credit period of 60 days
+                                    from the date of shipment. <br />
+                                    2. Ownership of the equipment transfers to the buyer. <br />
+                                    3.Risk of loss or damage to the equipment passes to the buyer upon delivery. <br />
+                                    4.Warranty must be claimed from the authorized service centre only. 5.Goods once
+                                    sold, will not be taken back.<br />
+
                                 </div>
                             </div>
 
@@ -478,7 +641,7 @@ const OrderPreviewModal = ({ open, onClose, orderId }) => {
                         <div style={{ padding: '40px 10px 10px 10px', borderTop: '2px solid #000' }}>
 
                             <div style={{ textAlign: 'right', fontSize: '11px', fontWeight: 'bold', marginBottom: '60px' }}>
-                                For SIGMAH ENTERPRISES
+                                For FTDS INDIA PRIVATE LIMITED
                             </div>
 
                             <div style={{ display: 'flex', justifyContent: 'space-between' }}>
