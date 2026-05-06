@@ -2,8 +2,8 @@
 
 const baseUrl =
   import.meta?.env?.VITE_API_BASE_URL ||
-  "https://api-test.itfixer199.com";
-  // "https://api.itfixer199.com";
+  // "https://api-test.itfixer199.com";
+  "https://api.itfixer199.com";
 
 // https://api-test.itfixer199.com
 
@@ -21,6 +21,7 @@ const orders = `${baseUrl}/api/order/orders/all/`;
 const publicOrder = `${baseUrl}/api/order/public/order/`;
 const createOrderPayment = `${baseUrl}/api/order/public/order/`;
 const singleOrder = `${baseUrl}/api/order/orders/`;
+const services = `${baseUrl}/api/services`;
 
 export default {
   login,
@@ -32,4 +33,5 @@ export default {
   publicOrder,
   createOrderPayment,
   singleOrder,
+  services,
 };

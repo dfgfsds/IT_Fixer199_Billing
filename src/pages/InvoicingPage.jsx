@@ -1120,6 +1120,7 @@ export default function InvoicingPage() {
         id: 1,
         type: 'PRODUCT',
         category_id: '',
+        service_id: '',
         product_id: '',
         name: '',
         qty: 1,
@@ -1180,42 +1181,77 @@ export default function InvoicingPage() {
     const totalPaid = payments.reduce((sum, p) => sum + (parseFloat(p.amount) || 0), 0);
     const remaining = Math.max(0, total - totalPaid);
 
+    const [allServices, setAllServices] = useState([]);
 
-    console.log("DEBUG: Logged in User Profile:", user);
-    console.log("Active Hub ID:", hubId);
+    const fetchServices = async () => {
+        try {
+            const res = await axiosInstance.get(Api.services, {
+                params: {
+                    page: 1,
+                    size: 1000,
+                    include_categories: true,
+                    include_media: true,
+                    include_pricing: true,
+                    include_zones: true,
+                    include_attributes: true
+                }
+            });
 
-    const addItem = () => setItems([...items, {
-        id: nextId++,
-        type: 'PRODUCT',
-        category_id: '',
-        product_id: '',
-        name: '',
-        qty: 1,
-        price: 0,
-        tax: 8.5,
-        attributes: {},
-        serial_numbers: [],
-        discount: "", device_id: "", brand: "", hsn: "", description: "", issue_description_text: "",
-        availableSerials: [],
-        productsList: [],
-        isLoadingProducts: false,
-        isLoadingSerials: false
-    }]);
+            setAllServices(res?.data?.services || []);
+
+        } catch (err) {
+            toast.error(extractErrorMessage(err));
+        }
+    };
+
+    useEffect(() => {
+        fetchCustomers("1000");
+        fetchCategories();
+        fetchAllProducts();
+        fetchServices();
+    }, []);
+
+    // const addItem = () => { setItems(prev => [ ...prev, { ...defaultItem, id: nextId++ } ]); };
+
+
+    const addItem = () =>
+        setItems([...items, {
+            id: nextId++,
+            type: 'PRODUCT',
+            category_id: '',
+            product_id: '',
+            service_id: '',
+            name: '',
+            qty: 1,
+            price: 0,
+            tax: 8.5,
+            attributes: {},
+            serial_numbers: [],
+            discount: "", device_id: "", brand: "", hsn: "", description: "", issue_description_text: "",
+            availableSerials: [],
+            productsList: [],
+            isLoadingProducts: false,
+            isLoadingSerials: false
+        }]);
+    const applyProduct = (id, product) => setItems(items.map(i =>
+        i.id === id ? { ...i, name: product.name, hsn: product.hsn, price: product.price, tax: product.tax } : i
+    ));
+
     // const applyProduct = (id, product) => setItems(items.map(i =>
     //     i.id === id ? { ...i, name: product.name, hsn: product.hsn, price: product.price, tax: product.tax } : i
     // ));
-    const applyProduct = (id, product) => setItems(items?.map(i =>
-        i.id === id
-            ? {
-                ...i,
-                name: product.name,
-                hsn: product.hsn,
-                price: product.price,
-                tax: product.tax,
-                qty: 1
-            }
-            : i
-    ));
+    // const applyProduct = (id, product) => setItems(items?.map(i =>
+    //     i.id === id
+    //         ? {
+    //             ...i,
+    //             name: product.name,
+    //             hsn: product.hsn,
+    //             price: product.price,
+    //             tax: product.tax,
+    //             qty: 1
+    //         }
+    //         : i
+    // ));
     const removeItem = (id) => setItems(items.filter(i => i.id !== id));
     const updateItem = (id, field, val) => setItems(prev => prev.map(i => i.id === id ? { ...i, [field]: val } : i));
 
@@ -1225,6 +1261,7 @@ export default function InvoicingPage() {
             type: 'PRODUCT',
             category_id: '',
             product_id: '',
+            service_id: '',
             name: '',
             qty: 1,
             price: 0,
@@ -1393,6 +1430,7 @@ export default function InvoicingPage() {
                 product_id: product.id,
                 name: product.name,
                 qty: 1,
+                service_id: product.service_id || '',
                 price: amount,
                 tax: product.tax || 0,
                 attributes: {},
@@ -1434,7 +1472,13 @@ export default function InvoicingPage() {
             toast.error("Please select an Sale Type (B2C or B2B)!");
             return;
         }
-        if (!items || items.length === 0 || !items[0].product_id) {
+        if (!items ||
+            items.length === 0 ||
+            items.some(i =>
+                i.type === "PRODUCT"
+                    ? !i.product_id
+                    : !i.service_id
+            )) {
             toast.error("At least one valid item is required!");
             return;
         }
@@ -1488,7 +1532,17 @@ export default function InvoicingPage() {
                         media: [],
                         brand: item.brand || "",
                         hsn_code: item.hsn || "",
-                        product_id: item.product_id,
+                        // product_id: item.product_id,
+                        // service_id: item.service_id || '',
+                        product_id:
+                            item.type === "PRODUCT"
+                                ? item.product_id
+                                : null,
+
+                        service_id:
+                            item.type === "SERVICE"
+                                ? item.service_id
+                                : null,
                         amount: String(item.price || "0"),
                         payments: payments
                             .filter(p => parseFloat(p.amount) > 0) // Zero amount irukatha filter panrom
@@ -1699,7 +1753,11 @@ export default function InvoicingPage() {
                                             </select>
                                         </div> */}
 
-                                        <div className="col-span-4">
+                                        <div className="col-span-2"> <label className="inv-label text-xs uppercase block mb-1"> TYPE </label> <select className="input w-full" value={item.type} onChange={(e) => { const value = e.target.value; setItems(prev => prev.map(i => i.id === item.id ? { ...i, type: value, product_id: '', service_id: '', name: '', price: 0, serial_numbers: [], attributes: {} } : i)); }} > <option value="PRODUCT"> PRODUCT </option> <option value="SERVICE"> SERVICE </option> </select> </div>
+
+                                        <div className="col-span-4"> <label className="inv-label text-xs uppercase block mb-1"> {item.type === "PRODUCT" ? "PRODUCT *" : "SERVICE *"} </label> <select className="input w-full" value={item.type === "PRODUCT" ? item.product_id : item.service_id} onChange={(e) => { const selectedId = e.target.value; /* ───── PRODUCT ───── */ if (item.type === "PRODUCT") { const prod = allProducts.find(p => String(p.id) === String(selectedId)); let amount = 0; if (prod) { const priceObj = prod.product_pricing?.[0] || prod.pricing?.[0]; if (priceObj?.price) amount = Number(priceObj.price); else if (prod.price) amount = Number(prod.price); else if (prod.selling_price) amount = Number(prod.selling_price); } setItems(prev => prev.map(i => i.id === item.id ? { ...i, product_id: selectedId, service_id: '', name: prod?.name || '', price: amount, tax: prod?.tax || 0, brand: prod?.brand_name || prod?.brand || '', hsn: prod?.hsn || '', serial_numbers: [], attributes: {} } : i)); if (selectedId) { fetchSerialsForProduct(item.id, selectedId); } } /* ───── SERVICE ───── */ else { const service = allServices.find(s => String(s.id) === String(selectedId)); const pricing = service?.pricing_models?.[0]; const amount = Number(pricing?.price || 0); setItems(prev => prev.map(i => i.id === item.id ? { ...i, service_id: selectedId, product_id: '', name: service?.name || '', price: amount, tax: service?.gst_percentage || 0, hsn: service?.hsn || '', serial_numbers: [], attributes: {} } : i)); } }} > <option value=""> {item.type === "PRODUCT" ? "Choose Product" : "Choose Service"} </option> {item.type === "PRODUCT" ? allProducts?.map((p) => (<option key={p.id} value={p.id} > {p.name} </option>)) : allServices?.map((s) => (<option key={s.id} value={s.id} > {s.name} </option>))} </select> </div>
+
+                                        {/* <div className="col-span-4">
                                             <label className="inv-label text-xs uppercase block mb-1">PRODUCT *</label>
                                             <select
                                                 className="input w-full"
@@ -1738,7 +1796,7 @@ export default function InvoicingPage() {
                                                     <option key={p.id} value={p.id}>{p.name}</option>
                                                 ))}
                                             </select>
-                                        </div>
+                                        </div> */}
 
                                         <div className="col-span-2">
                                             <label className="inv-label text-xs uppercase block mb-1">QTY *</label>
@@ -1845,7 +1903,7 @@ export default function InvoicingPage() {
                                         */}
 
                                         {/* Serial Numbers Grid */}
-                                        {item.product_id && (
+                                        {item.type === "PRODUCT" && item.product_id && (
                                             <div className="col-span-12 sn-box mt-2">
                                                 <div className="sn-header" style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 12 }}>
                                                     <label className="inv-label text-xs uppercase" style={{ margin: 0 }}>SERIAL NUMBERS *</label>
