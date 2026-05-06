@@ -21,6 +21,7 @@ const orders = `${baseUrl}/api/order/orders/all/`;
 const publicOrder = `${baseUrl}/api/order/public/order/`;
 const createOrderPayment = `${baseUrl}/api/order/public/order/`;
 const singleOrder = `${baseUrl}/api/order/orders/`;
+const services = `${baseUrl}/api/services`;
 
 export default {
   login,
@@ -32,4 +33,5 @@ export default {
   publicOrder,
   createOrderPayment,
   singleOrder,
+  services,
 };

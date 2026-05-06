@@ -336,7 +336,7 @@ const PAYMENT_STATUSES = [
 //     </div>
 
 //     ${notes ? `<div style="margin-top:30px; font-size:12px; color:#4b5563; border-left: 3px solid #e5e7eb; padding-left: 12px;"><b>Notes:</b><br/>${notes}</div>` : ''}
-    
+
 //     <div class="footer">
 //         Thank you for choosing ITFixer!<br/>
 //         © ${new Date().getFullYear()} ITFixer. All Rights Reserved.
@@ -421,7 +421,6 @@ const PAYMENT_STATUSES = [
 //     );
 // }
 const printInvoice = (orderData) => {
-    console.log(orderData)
     const { customerName, customerNumber, customerGst, invoiceNo, issueDate, items = [] } = orderData;
 
     // Logic and Calculations
@@ -460,60 +459,173 @@ const printInvoice = (orderData) => {
     const html = `
     <html>
     <head>
-      <title>Invoice - SIGMAH ENTERPRISES</title>
+      <title>Invoice - ITFIXER@199</title>
       <style>
         @page { size: A4; margin: 0; }
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; padding: 10mm; background: #fff; color: #000; }
-        .main-container { border: 2px solid #000; width: 190mm; height: 277mm; margin: 0 auto; display: flex; flex-direction: column; box-sizing: border-box; }
-        .top-header { display: flex; border-bottom: 2px solid #000; height: 110px; }
-        .logo-section { flex: 0 0 180px; padding: 10px; border-right: 2px solid #000; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; }
-        .logo-text { font-weight: bold; font-size: 18px; color: #666; line-height: 1.1; }
-        .it-fixer { color: #28a745; font-size: 12px; font-weight: bold; margin-top: 5px; }
-        .company-info { flex: 1; text-align: center; padding: 10px; }
-        .company-info h1 { margin: 0; font-size: 24px; font-weight: 900; letter-spacing: 1px; }
-        .company-info p { margin: 2px 0; font-size: 10px; line-height: 1.4; }
-        .bill-details { display: grid; grid-template-columns: 1.5fr 1fr; border-bottom: 2px solid #000; min-height: 100px; }
-        .to-section { padding: 10px; border-right: 2px solid #000; font-size: 11px; }
-        .no-section table { width: 100%; border-collapse: collapse; font-size: 11px; }
-        .no-section td { padding: 5px 8px; }
-        .items-container { flex-grow: 1; border-bottom: 2px solid #000; }
-        .bill-table { width: 100%; border-collapse: collapse; table-layout: fixed; height: 100%;}
-        .bill-table th { border-right: 1px solid #000; padding: 8px; font-size: 11px; border-bottom: 2px solid #000; background: #fff; font-weight: bold; text-align: center; }
-        .bill-table td { border-right: 1px solid #000; padding: 6px; font-size: 11px; vertical-align: top; }
-        .bill-table th:last-child, .bill-table td:last-child { border-right: none; }
-        .text-right { text-align: right; }
-        .text-center { text-align: center; }
-        .total-row { border-top: 2px solid #000; font-weight: bold; }
-        .summary-section { display: grid; grid-template-columns: 1.5fr 1fr; border-bottom: 2px solid #000; }
-        .summary-left { padding: 10px; border-right: 2px solid #000; font-size: 11px; }
-        .summary-right table { width: 100%; border-collapse: collapse; font-size: 11px; }
-        .summary-right td { padding: 5px 10px; border-bottom: 1px solid #000; border-left: 1px solid #000; }
-        .gst-table { width: 100%; border-collapse: collapse; font-size: 10px; text-align: center; }
-        .gst-table td, .gst-table th { border: 1px solid #000; padding: 4px; }
-        .signature-section { margin-top: auto; padding: 15px; display: flex; justify-content: space-between; align-items: flex-end; }
-        .sig-box { width: 200px; text-align: center; border-top: 1.5px solid #000; padding-top: 5px; font-size: 10px; font-weight: bold; }
+
+body {
+  font-family: 'Segoe UI', sans-serif;
+  margin: 0;
+  padding: 10mm;
+  background: #fff;
+}
+
+.main-container {
+  border: 1px solid #000;
+  width: 190mm;
+  height: 277mm;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+}
+
+/* HEADER */
+.top-header {
+  border-bottom: 1px solid #000;
+  text-align: center;
+  padding: 10px;
+}
+
+.company-info h1 {
+  margin: 0;
+  font-size: 22px;
+  font-weight: bold;
+}
+
+.company-info p {
+  font-size: 10px;
+  margin: 2px 0;
+}
+
+/* BILL DETAILS */
+.bill-details {
+  display: grid;
+  grid-template-columns: 1.6fr 1fr;
+  border-bottom: 1px solid #000;
+}
+
+.to-section {
+  padding: 10px;
+  border-right: 1px solid #000;
+  font-size: 11px;
+}
+
+.no-section table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.no-section td {
+  padding: 6.5px;
+}
+
+/* TABLE */
+.items-container {
+  flex: 1;
+  border-bottom: 1px solid #000;
+}
+
+.bill-table {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed;
+  height: 100%;
+}
+
+.bill-table th,
+.bill-table td {
+  border: 1px solid #000;   /* 🔥 SAME BORDER EVERYWHERE */
+  padding: 6.5px;
+  font-size: 11px;
+}
+
+.bill-table th {
+  text-align: center;
+  font-weight: bold;
+}
+
+.text-center { text-align: center; }
+.text-right { text-align: right; }
+
+/* TOTAL ROW */
+.total-row td {
+  font-weight: bold;
+}
+
+/* SUMMARY */
+.summary-section {
+  display: grid;
+  grid-template-columns: 1.5fr 1fr;
+  border-bottom: 1px solid #000;
+}
+
+.summary-left {
+  padding: 10px;
+  font-size: 11px;
+}
+
+.summary-right table {
+  width: 96%;
+  border-collapse: collapse;
+  margin-left:10px;
+}
+
+.summary-right td {
+  border: 1px solid #000;
+  padding: 6px;
+}
+
+/* GST TABLE */
+.gst-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 5px;
+}
+
+.gst-table th,
+.gst-table td {
+  border: 1px solid #000;
+  padding: 5px;
+  text-align: center;
+}
+
+/* SIGNATURE */
+.signature-section {
+  display: flex;
+  justify-content: space-between;
+  padding: 15px;
+}
+
+.sig-box {
+  border-top: 1px solid #000;
+  width: 200px;
+  text-align: center;
+  font-size: 10px;
+  padding-top: 5px;
+}
       </style>
     </head>
     <body>
       <div class="main-container">
         <div class="top-header">
-          <div class="logo-section">
-            <div class="logo-text">SIGMAH <br/> ENTERPRISES</div>
-            <div class="it-fixer">IT Fixer</div>
-          </div>
-          <div class="company-info">
-            <h1>SIGMAH ENTERPRISES</h1>
-            <p>New No.29 / Old No.31 & 32, Jafferkhanpet, Opp to Kasi Theatre,<br/>
-               Ashok Nagar, Chennai - 600083, <br/>
-               GST No:- 33NVOPK6133G1Z8, PH: 9994156516</p>
+         <div class="company-info">
+            <h1>FTDS INDIA PRIVATE LIMITED</h1>
+            <p>  No.91, Ground Floor,  Kothari Nagar 2nd Main Road<br/>
+               Ramapuram, Chennai - 600089 <br/>
+                PH: 9385939985 <br/>
+                GST: 33AAGCF5828A1Z0
+                </p>
           </div>
         </div>
 
         <div class="bill-details">
           <div class="to-section">
             <b>To:</b><br/>
-            ${customerName?.toUpperCase()}<br/>
-            PHN: ${customerNumber} | GST: ${customerGst || 'N/A'}
+            ${customerName?.toUpperCase()} <br/>
+ ${customerGst ? `<br/>
+    GST: ${customerGst}` : ''}<br/>
+    PHN: ${customerNumber}<br/>
           </div>
           <div class="no-section">
             <table>
@@ -573,7 +685,15 @@ const printInvoice = (orderData) => {
         <div class="summary-section">
           <div class="summary-left">
             <b>Amount In Words:</b><br/>
-            [${numberToWords(Math.round(netAmount))}]
+            ${numberToWords(Math.round(netAmount))}<br/>
+
+              <b>Tearms & Conditions:</b><br/>
+         1. Payments Should be made via Bank Transfer/Cheque with credit period of 60 days
+from the date of shipment.<br/>
+2. Ownership of the equipment transfers to the buyer.<br/>
+3. Risk of loss or damage to the equipment passes to the buyer upon delivery.<br/>
+4. Warranty must be claimed from the authorized service centre only.<br/>
+5.Goods once sold, will not be taken back.
           </div>
           <div class="summary-right">
             <table>
@@ -592,10 +712,14 @@ const printInvoice = (orderData) => {
         </div>
 
         <div class="signature-section">
-          <div class="sig-box">Customer Signature</div>
+           <div style="text-align: right;">
+            <div style="font-weight: bold; font-size: 12px; margin-bottom: 55px;"></div>
+            <div class="sig-box" style="margin-left: auto; ">Customer Signature</div>
+          </div>
+
           <div style="text-align: right;">
-            <div style="font-weight: bold; font-size: 12px; margin-bottom: 45px;">For SIGMAH ENTERPRISES</div>
-            <div class="sig-box" style="margin-left: auto;">Authorised Signatory</div>
+            <div style="font-weight: bold; font-size: 12px; margin-bottom: 45px;">For FTDS INDIA PRIVATE LIMITED</div>
+            <div class="sig-box" style="margin-left: auto; ">Authorised Signatory</div>
           </div>
         </div>
       </div>
@@ -697,16 +821,16 @@ function PreviewModal({ open, onClose, data, resetForm }) {
 
                         {/* 1. Header with LOGO */}
                         <div style={{ display: 'flex', borderBottom: '2px solid #000' }}>
-                            <div style={{ flex: '0 0 160px', padding: '10px', borderRight: '2px solid #000', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                            {/* <div style={{ flex: '0 0 160px', padding: '10px', borderRight: '2px solid #000', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                                 <div style={{ background: '#0056b3', color: '#fff', padding: '10px', fontWeight: 'bold', textAlign: 'center', borderRadius: '4px', width: '100%' }}>
                                     SIGMAH <br /> ENTERPRISES
                                     <div style={{ color: '#90ee90', fontSize: '10px' }}>IT Fixer</div>
                                 </div>
-                            </div>
+                            </div> */}
                             <div style={{ flex: 1, textAlign: 'center', padding: '10px' }}>
-                                <h2 style={{ margin: '0', fontSize: '24px', fontWeight: '900' }}>SIGMAH ENTERPRISES</h2>
-                                <div style={{ fontSize: '11px' }}>New No.29 / Old No.31 & 32, Jafferkhanpet, Chennai - 600083</div>
-                                <div style={{ fontSize: '11px' }}>GST No: 33NVOPK6133G1Z8 | Email: itfixer7@gmail.com</div>
+                                <h2 style={{ margin: '0', fontSize: '24px', fontWeight: '900' }}>FTDS INDIA PRIVATE LIMITED</h2>
+                                <div style={{ fontSize: '11px' }}>No.91, Ground Floor, Kothari Nagar 2nd Main Road,Ramapuram, Chennai - 600089</div>
+                                <div style={{ fontSize: '11px' }}>GST No: 33AAGCF5828A1Z0 | PH: 9385939985</div>
                             </div>
                         </div>
 
@@ -801,7 +925,7 @@ function PreviewModal({ open, onClose, data, resetForm }) {
 
                         {/* 5. Signatures */}
                         <div style={{ padding: '40px 10px 10px 10px', borderTop: '2px solid #000' }}>
-                            <div style={{ textAlign: 'right', fontSize: '11px', fontWeight: 'bold', marginBottom: '60px' }}>For SIGMAH ENTERPRISES</div>
+                            <div style={{ textAlign: 'right', fontSize: '11px', fontWeight: 'bold', marginBottom: '60px' }}>For FTDS INDIA PRIVATE LIMITED</div>
                             <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                                 <div style={{ width: '220px', borderTop: '1.5px solid #000', textAlign: 'center', fontSize: '10px', fontWeight: 'bold', paddingTop: '5px' }}>Customer Signature and Seal</div>
                                 <div style={{ width: '220px', borderTop: '1.5px solid #000', textAlign: 'center', fontSize: '10px', fontWeight: 'bold', paddingTop: '5px' }}>Authorised Signatory</div>
@@ -812,12 +936,12 @@ function PreviewModal({ open, onClose, data, resetForm }) {
 
                 <div className="no-print" style={{ padding: '20px', textAlign: 'right' }}>
                     <button
-                    //  onClick={handlePrint} 
-                       onClick={() =>
+                        //  onClick={handlePrint} 
+                        onClick={() =>
                             // window.print()
                             printInvoice(data)
                         }
-                     style={{ background: '#2563eb', color: '#fff', border: 'none', padding: '10px 30px', borderRadius: '4px', cursor: 'pointer', fontWeight: 'bold' }}>
+                        style={{ background: '#2563eb', color: '#fff', border: 'none', padding: '10px 30px', borderRadius: '4px', cursor: 'pointer', fontWeight: 'bold' }}>
                         Print Invoice
                     </button>
                 </div>
@@ -996,6 +1120,7 @@ export default function InvoicingPage() {
         id: 1,
         type: 'PRODUCT',
         category_id: '',
+        service_id: '',
         product_id: '',
         name: '',
         qty: 1,
@@ -1056,42 +1181,77 @@ export default function InvoicingPage() {
     const totalPaid = payments.reduce((sum, p) => sum + (parseFloat(p.amount) || 0), 0);
     const remaining = Math.max(0, total - totalPaid);
 
+    const [allServices, setAllServices] = useState([]);
 
-    console.log("DEBUG: Logged in User Profile:", user);
-    console.log("Active Hub ID:", hubId);
+    const fetchServices = async () => {
+        try {
+            const res = await axiosInstance.get(Api.services, {
+                params: {
+                    page: 1,
+                    size: 1000,
+                    include_categories: true,
+                    include_media: true,
+                    include_pricing: true,
+                    include_zones: true,
+                    include_attributes: true
+                }
+            });
 
-    const addItem = () => setItems([...items, {
-        id: nextId++,
-        type: 'PRODUCT',
-        category_id: '',
-        product_id: '',
-        name: '',
-        qty: 1,
-        price: 0,
-        tax: 8.5,
-        attributes: {},
-        serial_numbers: [],
-        discount: "", device_id: "", brand: "", hsn: "", description: "", issue_description_text: "",
-        availableSerials: [],
-        productsList: [],
-        isLoadingProducts: false,
-        isLoadingSerials: false
-    }]);
+            setAllServices(res?.data?.services || []);
+
+        } catch (err) {
+            toast.error(extractErrorMessage(err));
+        }
+    };
+
+    useEffect(() => {
+        fetchCustomers("1000");
+        fetchCategories();
+        fetchAllProducts();
+        fetchServices();
+    }, []);
+
+    // const addItem = () => { setItems(prev => [ ...prev, { ...defaultItem, id: nextId++ } ]); };
+
+
+    const addItem = () =>
+        setItems([...items, {
+            id: nextId++,
+            type: 'PRODUCT',
+            category_id: '',
+            product_id: '',
+            service_id: '',
+            name: '',
+            qty: 1,
+            price: 0,
+            tax: 8.5,
+            attributes: {},
+            serial_numbers: [],
+            discount: "", device_id: "", brand: "", hsn: "", description: "", issue_description_text: "",
+            availableSerials: [],
+            productsList: [],
+            isLoadingProducts: false,
+            isLoadingSerials: false
+        }]);
+    const applyProduct = (id, product) => setItems(items.map(i =>
+        i.id === id ? { ...i, name: product.name, hsn: product.hsn, price: product.price, tax: product.tax } : i
+    ));
+
     // const applyProduct = (id, product) => setItems(items.map(i =>
     //     i.id === id ? { ...i, name: product.name, hsn: product.hsn, price: product.price, tax: product.tax } : i
     // ));
-    const applyProduct = (id, product) => setItems(items?.map(i =>
-        i.id === id
-            ? {
-                ...i,
-                name: product.name,
-                hsn: product.hsn,
-                price: product.price,
-                tax: product.tax,
-                qty: 1
-            }
-            : i
-    ));
+    // const applyProduct = (id, product) => setItems(items?.map(i =>
+    //     i.id === id
+    //         ? {
+    //             ...i,
+    //             name: product.name,
+    //             hsn: product.hsn,
+    //             price: product.price,
+    //             tax: product.tax,
+    //             qty: 1
+    //         }
+    //         : i
+    // ));
     const removeItem = (id) => setItems(items.filter(i => i.id !== id));
     const updateItem = (id, field, val) => setItems(prev => prev.map(i => i.id === id ? { ...i, [field]: val } : i));
 
@@ -1101,6 +1261,7 @@ export default function InvoicingPage() {
             type: 'PRODUCT',
             category_id: '',
             product_id: '',
+            service_id: '',
             name: '',
             qty: 1,
             price: 0,
@@ -1125,7 +1286,7 @@ export default function InvoicingPage() {
         setPaymentStatus(PAYMENT_STATUSES[0]);
     };
 
-    const invoiceData = { customerName, customerEmail, customerNumber,customerGst, invoiceNo, issueDate, items, subtotal, taxAmount, total, notes, paymentType, paymentStatus, amountPaid: paidNum };
+    const invoiceData = { customerName, customerEmail, customerNumber, customerGst, invoiceNo, issueDate, items, subtotal, taxAmount, total, notes, paymentType, paymentStatus, amountPaid: paidNum };
 
     const handleCheckout = () => {
         if (!paymentType) return alert('Please select a payment type first.');
@@ -1269,6 +1430,7 @@ export default function InvoicingPage() {
                 product_id: product.id,
                 name: product.name,
                 qty: 1,
+                service_id: product.service_id || '',
                 price: amount,
                 tax: product.tax || 0,
                 attributes: {},
@@ -1307,10 +1469,16 @@ export default function InvoicingPage() {
             return;
         }
         if (!orderType) {
-            toast.error("Please select an Order Type (B2C or B2B)!");
+            toast.error("Please select an Sale Type (B2C or B2B)!");
             return;
         }
-        if (!items || items.length === 0 || !items[0].product_id) {
+        if (!items ||
+            items.length === 0 ||
+            items.some(i =>
+                i.type === "PRODUCT"
+                    ? !i.product_id
+                    : !i.service_id
+            )) {
             toast.error("At least one valid item is required!");
             return;
         }
@@ -1364,7 +1532,17 @@ export default function InvoicingPage() {
                         media: [],
                         brand: item.brand || "",
                         hsn_code: item.hsn || "",
-                        product_id: item.product_id,
+                        // product_id: item.product_id,
+                        // service_id: item.service_id || '',
+                        product_id:
+                            item.type === "PRODUCT"
+                                ? item.product_id
+                                : null,
+
+                        service_id:
+                            item.type === "SERVICE"
+                                ? item.service_id
+                                : null,
                         amount: String(item.price || "0"),
                         payments: payments
                             .filter(p => parseFloat(p.amount) > 0) // Zero amount irukatha filter panrom
@@ -1382,13 +1560,13 @@ export default function InvoicingPage() {
                 setLoading(false);
                 setPoData(response?.data)
                 // resetForm();
-                toast.success("Order Created Successfully!");
+                toast.success("Sale Created Successfully!");
                 setShowPreview(true);
             }
         } catch (err) {
             setLoading(false);
-            toast.error(err.response?.data?.message || "Failed to create order");
-            console.error("Order creation failed:", err);
+            toast.error(err.response?.data?.message || "Failed to create sale");
+            console.error("Sale creation failed:", err);
         }
     };
 
@@ -1406,8 +1584,8 @@ export default function InvoicingPage() {
                     <p className="section-subtitle">Create a professional ledger entry for your client.</p>
                 </div>
                 <div className="inv-header-actions">
-                    {/* <button className="btn btn-outline" onClick={() => printInvoice(invoiceData)}>Print</button>
-                    <button className="btn btn-outline" onClick={() => setShowPreview(true)}>Preview</button> */}
+                    <button className="btn btn-outline" onClick={() => printInvoice(invoiceData)}>Print</button>
+                    <button className="btn btn-outline" onClick={() => setShowPreview(true)}>Preview</button>
                     <button
                         disabled={loading}
                         className="btn btn-primary d-flex align-items-center justify-content-center"
@@ -1478,14 +1656,14 @@ export default function InvoicingPage() {
 
                         <div className="inv-meta mt-4">
                             <div className="inv-field">
-                                <label className="inv-label text-danger">ORDER TYPE *</label>
+                                <label className="inv-label text-danger">Sale TYPE *</label>
                                 <select
                                     className="input"
                                     value={orderType}
                                     onChange={(e) => setOrderType(e.target.value)}
                                     style={{ borderColor: !orderType ? 'var(--border)' : 'var(--border)' }}
                                 >
-                                    <option value="">Select Order Type</option>
+                                    <option value="">Select Sale Type</option>
                                     <option value="B2C">B2C (Business to Consumer)</option>
                                     <option value="B2B">B2B (Business to Business)</option>
                                 </select>
@@ -1575,7 +1753,11 @@ export default function InvoicingPage() {
                                             </select>
                                         </div> */}
 
-                                        <div className="col-span-4">
+                                        <div className="col-span-2"> <label className="inv-label text-xs uppercase block mb-1"> TYPE </label> <select className="input w-full" value={item.type} onChange={(e) => { const value = e.target.value; setItems(prev => prev.map(i => i.id === item.id ? { ...i, type: value, product_id: '', service_id: '', name: '', price: 0, serial_numbers: [], attributes: {} } : i)); }} > <option value="PRODUCT"> PRODUCT </option> <option value="SERVICE"> SERVICE </option> </select> </div>
+
+                                        <div className="col-span-4"> <label className="inv-label text-xs uppercase block mb-1"> {item.type === "PRODUCT" ? "PRODUCT *" : "SERVICE *"} </label> <select className="input w-full" value={item.type === "PRODUCT" ? item.product_id : item.service_id} onChange={(e) => { const selectedId = e.target.value; /* ───── PRODUCT ───── */ if (item.type === "PRODUCT") { const prod = allProducts.find(p => String(p.id) === String(selectedId)); let amount = 0; if (prod) { const priceObj = prod.product_pricing?.[0] || prod.pricing?.[0]; if (priceObj?.price) amount = Number(priceObj.price); else if (prod.price) amount = Number(prod.price); else if (prod.selling_price) amount = Number(prod.selling_price); } setItems(prev => prev.map(i => i.id === item.id ? { ...i, product_id: selectedId, service_id: '', name: prod?.name || '', price: amount, tax: prod?.tax || 0, brand: prod?.brand_name || prod?.brand || '', hsn: prod?.hsn || '', serial_numbers: [], attributes: {} } : i)); if (selectedId) { fetchSerialsForProduct(item.id, selectedId); } } /* ───── SERVICE ───── */ else { const service = allServices.find(s => String(s.id) === String(selectedId)); const pricing = service?.pricing_models?.[0]; const amount = Number(pricing?.price || 0); setItems(prev => prev.map(i => i.id === item.id ? { ...i, service_id: selectedId, product_id: '', name: service?.name || '', price: amount, tax: service?.gst_percentage || 0, hsn: service?.hsn || '', serial_numbers: [], attributes: {} } : i)); } }} > <option value=""> {item.type === "PRODUCT" ? "Choose Product" : "Choose Service"} </option> {item.type === "PRODUCT" ? allProducts?.map((p) => (<option key={p.id} value={p.id} > {p.name} </option>)) : allServices?.map((s) => (<option key={s.id} value={s.id} > {s.name} </option>))} </select> </div>
+
+                                        {/* <div className="col-span-4">
                                             <label className="inv-label text-xs uppercase block mb-1">PRODUCT *</label>
                                             <select
                                                 className="input w-full"
@@ -1614,7 +1796,7 @@ export default function InvoicingPage() {
                                                     <option key={p.id} value={p.id}>{p.name}</option>
                                                 ))}
                                             </select>
-                                        </div>
+                                        </div> */}
 
                                         <div className="col-span-2">
                                             <label className="inv-label text-xs uppercase block mb-1">QTY *</label>
@@ -1721,7 +1903,7 @@ export default function InvoicingPage() {
                                         */}
 
                                         {/* Serial Numbers Grid */}
-                                        {item.product_id && (
+                                        {item.type === "PRODUCT" && item.product_id && (
                                             <div className="col-span-12 sn-box mt-2">
                                                 <div className="sn-header" style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 12 }}>
                                                     <label className="inv-label text-xs uppercase" style={{ margin: 0 }}>SERIAL NUMBERS *</label>
