@@ -2,8 +2,8 @@
 
 const baseUrl =
   import.meta?.env?.VITE_API_BASE_URL ||
-  // "https://api-test.itfixer199.com";
-  "https://api.itfixer199.com";
+  "https://api-test.itfixer199.com";
+  // "https://api.itfixer199.com";
 
 // https://api-test.itfixer199.com
 
