@@ -1508,6 +1508,7 @@ export default function InvoicingPage() {
                 user_id: null,
                 hub_id: hubId,
                 zone_id: user?.zone_id || null,
+                is_order_completed: true,
                 // Split Payments Array (Item-kulla irunthu veliya kondu vanthuten)
                 payments: payments
                     .filter(p => parseFloat(p.amount) > 0)
@@ -1564,8 +1565,50 @@ export default function InvoicingPage() {
                 setShowPreview(true);
             }
         } catch (err) {
+            const data = err?.response?.data;
+
+            let errorMessage = "Something went wrong";
+
+            if (data?.errors) {
+                const getErrorWithKey = (errObj, parentKey = "") => {
+                    if (Array.isArray(errObj)) {
+                        return getErrorWithKey(errObj[0], parentKey);
+                    }
+
+                    if (typeof errObj === "object") {
+                        const firstKey = Object.keys(errObj)[0];
+                        return getErrorWithKey(errObj[firstKey], firstKey);
+                    }
+
+                    if (typeof errObj === "string") {
+                        return {
+                            key: parentKey,
+                            message: errObj
+                        };
+                    }
+
+                    return null;
+                };
+
+                const result = getErrorWithKey(data.errors);
+
+                if (result) {
+                    const formattedKey =
+                        result.key.charAt(0).toUpperCase() +
+                        result.key.slice(1).replace(/_/g, " ");
+
+                    errorMessage = `${formattedKey}: ${result.message}`;
+                }
+            } else if (typeof data?.message === "object") {
+                errorMessage = JSON.stringify(data.message);
+            } else {
+                errorMessage = data?.message || "Something went wrong";
+            }
+
+            toast.error(errorMessage);
+
             setLoading(false);
-            toast.error(err.response?.data?.message || "Failed to create sale");
+            // toast.error(err.response?.data?.message || "Failed to create sale");
             console.error("Sale creation failed:", err);
         }
     };
@@ -1584,8 +1627,8 @@ export default function InvoicingPage() {
                     <p className="section-subtitle">Create a professional ledger entry for your client.</p>
                 </div>
                 <div className="inv-header-actions">
-                    <button className="btn btn-outline" onClick={() => printInvoice(invoiceData)}>Print</button>
-                    <button className="btn btn-outline" onClick={() => setShowPreview(true)}>Preview</button>
+                    {/* <button className="btn btn-outline" onClick={() => printInvoice(invoiceData)}>Print</button>
+                    <button className="btn btn-outline" onClick={() => setShowPreview(true)}>Preview</button> */}
                     <button
                         disabled={loading}
                         className="btn btn-primary d-flex align-items-center justify-content-center"
