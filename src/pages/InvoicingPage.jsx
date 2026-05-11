@@ -1170,23 +1170,58 @@ export default function InvoicingPage() {
     const [showManual, setShowManual] = useState(false);
     const [manualIsFallback, setManualIsFallback] = useState(false);
     const [barcodeQuery, setBarcodeQuery] = useState('');
-    const [customerAddress, setCustomerAddress] = useState('');
+const [customerAddress, setCustomerAddress] = useState("");
 
-    const fetchCustomerAddress = async (userId) => {
-        try {
-            const res = await axiosInstance.get(`${Api?.address}${userId}`);
-            // API response array-ah vara nala [0] check panrom
-            if (res.data && res.data.length > 0) {
-                setCustomerAddress(res.data[0].full_address || '');
-            } else {
-                setCustomerAddress('');
+const fetchCustomerAddress = async (userId) => {
+    try {
+        const res = await axiosInstance.get(`${Api?.address}${userId}`);
+
+        console.log("ADDRESS API RESPONSE :", res?.data);
+
+        const addressList = res?.data?.data || [];
+
+        // empty illaatha address find pannum
+        const addr = addressList.find((item) => {
+            return (
+                item?.full_address ||
+                item?.district ||
+                item?.state ||
+                item?.pincode ||
+                item?.google_address
+            );
+        });
+
+        console.log("SELECTED ADDRESS OBJECT :", addr);
+
+        if (addr) {
+            const parts = [
+                addr?.full_address,
+                addr?.district,
+                addr?.state,
+                addr?.pincode,
+            ]
+                .filter((part) => part && part.toString().trim() !== "")
+                .map((part) => part.toString().trim());
+
+            let displayAddress = parts.join(", ");
+
+            // fallback
+            if (!displayAddress && addr?.google_address) {
+                displayAddress = addr.google_address;
             }
-        } catch (err) {
-            console.error("Address fetch failed:", err);
-            setCustomerAddress('');
-        }
-    };
 
+            console.log("FINAL ADDRESS :", displayAddress);
+
+            setCustomerAddress(displayAddress);
+        } else {
+            console.log("No valid address found");
+            setCustomerAddress("");
+        }
+    } catch (err) {
+        console.error("Address fetch failed:", err);
+        setCustomerAddress("");
+    }
+};
     const subtotal = items?.reduce((s, i) => s + i?.qty * i?.price, 0);
     // const taxAmount = items?.reduce((s, i) => s + i?.qty * i?.price * i.tax / 100, 0);
     const taxAmount = items?.reduce((s, i) => {
@@ -1655,6 +1690,12 @@ export default function InvoicingPage() {
         if (paidNum === 0) setAmountPaid(total?.toFixed(2));
     };
 
+//     useEffect(() => {
+//     if (selectedCustomerId) {
+//         fetchCustomerAddress(selectedCustomerId);
+//     }
+// }, [selectedCustomerId]);
+
     return (
         <div className="inv">
             {/* Header */}
@@ -1774,14 +1815,17 @@ export default function InvoicingPage() {
                         </div>
                         <div className="inv-field full-width" style={{ gridColumn: 'span 3', marginTop: '10px' }}>
                             <label className="inv-label">CUSTOMER ADDRESS</label>
-                            <textarea
-                                className="input"
-                                placeholder="Customer full address"
-                                value={customerAddress}
-                                onChange={(e) => setCustomerAddress(e.target.value)}
-                                rows="2"
-                                style={{ width: '100%', resize: 'none' }}
-                            />
+                             <textarea
+        className="input"
+        placeholder="Customer full address"
+        value={customerAddress || ""}
+        onChange={(e) => setCustomerAddress(e.target.value)}
+        rows={2}
+        style={{
+            width: "100%",
+            resize: "none"
+        }}
+    />
                         </div>
                         {/* <div className="inv-meta mt-4">
                             <div className="inv-field">
