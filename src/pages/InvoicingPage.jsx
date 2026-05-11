@@ -669,7 +669,7 @@ body {
   <b>
     ${item?.name || 'Product'}.
     <br/>
-    Warranty: ${item?.warranty_duration || ''}
+     ${item?.warranty_duration && `<span style="font-weight: normal; font-size: 9px;">Warranty: ${item.warranty_duration}</span>`}
   </b>
 </td>
                   <td class="text-center">${item?.hsn || ''}</td>
