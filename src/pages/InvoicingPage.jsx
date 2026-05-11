@@ -420,8 +420,8 @@ const PAYMENT_STATUSES = [
 //         </div>
 //     );
 // }
-const printInvoice = (orderData) => {
-    const { customerName, customerNumber, customerGst, invoiceNo, issueDate, items = [] } = orderData;
+const printInvoice = (orderData, invoiceNumber) => {
+    const { customerName, customerNumber, customerGst, invoiceNo, issueDate, items, customerAddress = [] } = orderData;
 
     // Logic and Calculations
     const totalQty = items.reduce((acc, curr) => acc + parseInt(curr?.qty || 0), 0);
@@ -455,13 +455,15 @@ const printInvoice = (orderData) => {
         str += (Number(n[5]) !== 0) ? ((str !== '') ? 'and ' : '') + (a[Number(n[5])] || b[n[5][0]] + ' ' + a[n[5][1]]) + 'Rs. Only' : '';
         return str;
     };
+    // ${item?.serial_numbers ? item.serial_numbers.map(serial => `<br/>SN: ${serial}`).join('') : ''}.
+
 
     const html = `
     <html>
     <head>
       <title>Invoice - ITFIXER@199</title>
       <style>
-        @page { size: A4; margin: 0; }
+        @page { size: A4; margin: 0; padding: 0; }
 
 body {
   font-family: 'Segoe UI', sans-serif;
@@ -518,6 +520,8 @@ body {
 
 .no-section td {
   padding: 6.5px;
+    font-size: 11px;
+     font-weight: bold;
 }
 
 /* TABLE */
@@ -623,14 +627,16 @@ body {
           <div class="to-section">
             <b>To:</b><br/>
             ${customerName?.toUpperCase()} <br/>
- ${customerGst ? `<br/>
+            ${customerAddress?.toUpperCase()} <br/>
+ ${customerGst ? `
     GST: ${customerGst}` : ''}<br/>
-    PHN: ${customerNumber}<br/>
+    ${customerNumber ? `
+    PHN: ${customerNumber}` : ''}<br/>
           </div>
           <div class="no-section">
             <table>
-              <tr><td><b>Bill No</b></td><td>: ${invoiceNo || 'N/A'}</td></tr>
-              <tr><td><b>Date</b></td><td>: ${issueDate || new Date().toLocaleDateString('en-GB')}</td></tr>
+              <tr><td>Bill No</td><td>: ${invoiceNumber || 'N/A'}</td></tr>
+              <tr><td>Date</td><td>: ${issueDate || new Date().toLocaleDateString('en-GB')}</td></tr>
             </table>
           </div>
         </div>
@@ -659,13 +665,19 @@ body {
         return `
                 <tr>
                   <td class="text-center">${index + 1}</td>
-                  <td><b>${item?.name || 'Product'}</b></td>
+                  <td>
+  <b>
+    ${item?.name || 'Product'}.
+    <br/>
+    Warranty: ${item?.warranty_duration || ''}
+  </b>
+</td>
                   <td class="text-center">${item?.hsn || ''}</td>
                   <td class="text-center">${qty}</td>
-                  <td class="text-right">${rate.toFixed(2)}</td>
-                  <td class="text-right">${itemTax.toFixed(2)}</td>
-                  <td class="text-right">${itemTax.toFixed(2)}</td>
                   <td class="text-right">${itemTaxable.toFixed(2)}</td>
+                  <td class="text-right">${itemTax.toFixed(2)}</td>
+                  <td class="text-right">${itemTax.toFixed(2)}</td>
+                  <td class="text-right">${rate.toFixed(2)}</td>
                 </tr>`
     }).join("")}
               
@@ -676,7 +688,7 @@ body {
                 <td colspan="2" class="text-center">Gross Amount</td>
                 <td class="text-right">${cgst_sgst.toFixed(2)}</td>
                 <td class="text-right">${cgst_sgst.toFixed(2)}</td>
-                <td class="text-right">${taxableValue.toFixed(2)}</td>
+                <td class="text-right">${netAmount.toFixed(2)}</td>
               </tr>
             </tbody>
           </table>
@@ -741,13 +753,13 @@ from the date of shipment.<br/>
 
 
 /* ─── Sigmah Style Preview Modal (Clean Version) ─── */
-function PreviewModal({ open, onClose, data, resetForm }) {
+function PreviewModal({ open, onClose, data, resetForm, poData }) {
     console.log(data)
     if (!open) return null;
 
     const {
-        customerName, customerNumber, customerAddress, customerGst,
-        invoiceNo, issueDate, items
+        customerName, customerNumber, customerGst,
+        invoiceNo, issueDate, items, customerAddress
     } = data;
 
     const handlePrint = () => {
@@ -837,12 +849,13 @@ function PreviewModal({ open, onClose, data, resetForm }) {
                         {/* 2. To & Bill Details */}
                         <div style={{ display: 'grid', gridTemplateColumns: '1.5fr 1fr', borderBottom: '2px solid #000' }}>
                             <div style={{ padding: '8px', borderRight: '2px solid #000' }}>
-                                <div style={{ fontSize: '12px' }}><b>To:</b> {customerName}</div>
-                                <div style={{ fontSize: '12px' }}><b>PH:</b> {customerNumber}</div>
-                                <div style={{ fontSize: '10px' }}><b>GST:</b>{customerGst}</div>
+                                {customerName && <div style={{ fontSize: '12px' }}><b>To:</b> {customerName}</div>}
+                                {customerAddress && <div style={{ fontSize: '12px' }}><b>Address:</b> {customerAddress}</div>}
+                                {customerNumber && <div style={{ fontSize: '12px' }}><b>PH:</b> {customerNumber}</div>}
+                                {customerGst && <div style={{ fontSize: '10px' }}><b>GST:</b>{customerGst}</div>}
                             </div>
                             <div style={{ padding: '8px', fontSize: '12px' }}>
-                                <div style={{ display: 'flex' }}><span>Bill No :</span> <span>{invoiceNo}</span></div>
+                                <div style={{ display: 'flex' }}><span>Bill No :</span> <span>{poData?.order_creation?.invoice_number}</span></div>
                                 <div style={{ display: 'flex' }}><span>Date :</span> <span>{issueDate}</span></div>
                             </div>
                         </div>
@@ -869,10 +882,10 @@ function PreviewModal({ open, onClose, data, resetForm }) {
                                             <td style={{ textAlign: 'left' }}>{item.name}</td>
                                             <td style={{ textAlign: 'center' }}>{item.hsn || 'hsn_001'}</td>
                                             <td style={{ textAlign: 'center' }}>{item.qty}</td>
-                                            <td style={{ textAlign: 'right' }}>{Number(item.price).toFixed(2)}</td>
-                                            <td style={{ textAlign: 'right' }}>{((item.qty * item.price * 0.18) / 2 / 1.18).toFixed(2)}</td>
-                                            <td style={{ textAlign: 'right' }}>{((item.qty * item.price * 0.18) / 2 / 1.18).toFixed(2)}</td>
                                             <td style={{ textAlign: 'right', borderRight: 'none' }}>{((item.qty * item.price) / 1.18).toFixed(2)}</td>
+                                            <td style={{ textAlign: 'right' }}>{((item.qty * item.price * 0.18) / 2 / 1.18).toFixed(2)}</td>
+                                            <td style={{ textAlign: 'right' }}>{((item.qty * item.price * 0.18) / 2 / 1.18).toFixed(2)}</td>
+                                            <td style={{ textAlign: 'right' }}>{Number(item.price).toFixed(2)}</td>
                                         </tr>
                                     ))}
                                     {/* Empty rows to maintain table height */}
@@ -889,7 +902,7 @@ function PreviewModal({ open, onClose, data, resetForm }) {
                                         <td style={{ textAlign: 'right' }}>Gross Amount</td>
                                         <td style={{ textAlign: 'right' }}>{cgst_sgst.toFixed(2)}</td>
                                         <td style={{ textAlign: 'right' }}>{cgst_sgst.toFixed(2)}</td>
-                                        <td style={{ textAlign: 'right', borderRight: 'none' }}>{netAmountWithOutGst.toFixed(2)}</td>
+                                        <td style={{ textAlign: 'right', borderRight: 'none' }}>{netAmount?.toFixed(2)}</td>
                                     </tr>
                                 </tfoot>
                             </table>
@@ -901,7 +914,12 @@ function PreviewModal({ open, onClose, data, resetForm }) {
                                 <div style={{ fontSize: '11px', marginBottom: '8px' }}><b>Amount In Words:</b> [Rupees Amount Logic]</div>
                                 <div style={{ fontSize: '9px', lineHeight: '1.3' }}>
                                     <b>Terms & Conditions:</b><br />
-                                    1. Payments via Bank Transfer/Cheque. 2. Goods once sold not returnable.
+                                    1. Payments Should be made via Bank Transfer/Cheque with credit period of 60 days
+                                    from the date of shipment.<br />
+                                    2. Ownership of the equipment transfers to the buyer.<br />
+                                    3. Risk of loss or damage to the equipment passes to the buyer upon delivery.<br />
+                                    4. Warranty must be claimed from the authorized service centre only.<br />
+                                    5.Goods once sold, will not be taken back.
                                 </div>
                             </div>
                             <div>
@@ -939,7 +957,7 @@ function PreviewModal({ open, onClose, data, resetForm }) {
                         //  onClick={handlePrint} 
                         onClick={() =>
                             // window.print()
-                            printInvoice(data)
+                            printInvoice(data, poData?.order_creation?.invoice_number)
                         }
                         style={{ background: '#2563eb', color: '#fff', border: 'none', padding: '10px 30px', borderRadius: '4px', cursor: 'pointer', fontWeight: 'bold' }}>
                         Print Invoice
@@ -1132,7 +1150,8 @@ export default function InvoicingPage() {
         availableSerials: [],
         productsList: [],
         isLoadingProducts: false,
-        isLoadingSerials: false
+        isLoadingSerials: false,
+        warranty_duration: '',
     }]);
     const [customerName, setCustomerName] = useState('');
     const [customerEmail, setCustomerEmail] = useState('');
@@ -1151,6 +1170,22 @@ export default function InvoicingPage() {
     const [showManual, setShowManual] = useState(false);
     const [manualIsFallback, setManualIsFallback] = useState(false);
     const [barcodeQuery, setBarcodeQuery] = useState('');
+    const [customerAddress, setCustomerAddress] = useState('');
+
+    const fetchCustomerAddress = async (userId) => {
+        try {
+            const res = await axiosInstance.get(`${Api?.address}${userId}`);
+            // API response array-ah vara nala [0] check panrom
+            if (res.data && res.data.length > 0) {
+                setCustomerAddress(res.data[0].full_address || '');
+            } else {
+                setCustomerAddress('');
+            }
+        } catch (err) {
+            console.error("Address fetch failed:", err);
+            setCustomerAddress('');
+        }
+    };
 
     const subtotal = items?.reduce((s, i) => s + i?.qty * i?.price, 0);
     // const taxAmount = items?.reduce((s, i) => s + i?.qty * i?.price * i.tax / 100, 0);
@@ -1169,10 +1204,8 @@ export default function InvoicingPage() {
     const { user } = useAuth();
 
     const hubId = user?.hubs?.[0]?.id || user?.hub_id;
-    console.log(hubId)
     const [poData, setPoData] = useState();
     const [loading, setLoading] = useState(false);
-    // Old amountPaid state-ah remove pannittu ithu rendu add pannu
     const [payments, setPayments] = useState([
         { amount: "", payment_method: "CASH", transaction_id: "" }
     ]);
@@ -1231,7 +1264,8 @@ export default function InvoicingPage() {
             availableSerials: [],
             productsList: [],
             isLoadingProducts: false,
-            isLoadingSerials: false
+            isLoadingSerials: false,
+            warranty_duration: '',
         }]);
     const applyProduct = (id, product) => setItems(items.map(i =>
         i.id === id ? { ...i, name: product.name, hsn: product.hsn, price: product.price, tax: product.tax } : i
@@ -1272,7 +1306,8 @@ export default function InvoicingPage() {
             availableSerials: [],
             productsList: [],
             isLoadingProducts: false,
-            isLoadingSerials: false
+            isLoadingSerials: false,
+            warranty_duration: '',
         }]);
         setCustomerName('');
         setCustomerEmail('');
@@ -1286,7 +1321,7 @@ export default function InvoicingPage() {
         setPaymentStatus(PAYMENT_STATUSES[0]);
     };
 
-    const invoiceData = { customerName, customerEmail, customerNumber, customerGst, invoiceNo, issueDate, items, subtotal, taxAmount, total, notes, paymentType, paymentStatus, amountPaid: paidNum };
+    const invoiceData = { customerName, customerEmail, customerNumber, customerGst, invoiceNo, issueDate, items, subtotal, taxAmount, total, notes, paymentType, paymentStatus, amountPaid: paidNum, customerAddress };
 
     const handleCheckout = () => {
         if (!paymentType) return alert('Please select a payment type first.');
@@ -1336,7 +1371,7 @@ export default function InvoicingPage() {
 
     const fetchAllProducts = async () => {
         try {
-            const res = await axiosInstance.get(`${Api.products}?size=1000&include_attribute=true&include_pricing=true`);
+            const res = await axiosInstance.get(`${Api.products}?size=10000&include_attribute=true&include_pricing=true`);
             console.log("All Products response:", res.data);
             const products = res.data?.products || res.data?.data || res.data || [];
             setAllProducts(products);
@@ -1444,7 +1479,8 @@ export default function InvoicingPage() {
                 availableSerials: [],
                 productsList: [],
                 isLoadingProducts: false,
-                isLoadingSerials: false
+                isLoadingSerials: false,
+                warranty_duration: '',
             };
 
             setItems(prev => {
@@ -1490,7 +1526,7 @@ export default function InvoicingPage() {
                 customer_number: customerNumber.replace(/\D/g, ''),
                 customer_email: customerEmail || "",
                 customer_gst: customerGst || "",
-                address: "Shop Address",
+                address: customerAddress,
                 google_address: "",
                 latitude: 0,
                 longitude: 0,
@@ -1552,6 +1588,7 @@ export default function InvoicingPage() {
                                 payment_method: p.payment_method,
                                 transaction_id: p.transaction_id || ""
                             })),
+                        warranty_duration: item.warranty_duration || "",
                     };
                 })
             };
@@ -1668,6 +1705,7 @@ export default function InvoicingPage() {
                                     setCustomerName(c.name || '');
                                     setCustomerEmail(c.email || '');
                                     setCustomerNumber(c.mobile_number || '');
+                                    if (c.id) fetchCustomerAddress(c.id);
                                 }}
                             />
                             <CustomerSearch
@@ -1682,7 +1720,7 @@ export default function InvoicingPage() {
                                     setCustomerNumber(c.mobile_number || '');
                                 }}
                             />
-                            <CustomerSearch
+                            {/* <CustomerSearch
                                 label="CUSTOMER EMAIL"
                                 placeholder="Customer email"
                                 type="email"
@@ -1694,10 +1732,7 @@ export default function InvoicingPage() {
                                     setCustomerEmail(c.email || '');
                                     setCustomerNumber(c.mobile_number || '');
                                 }}
-                            />
-                        </div>
-
-                        <div className="inv-meta mt-4">
+                            /> */}
                             <div className="inv-field">
                                 <label className="inv-label text-danger">Sale TYPE *</label>
                                 <select
@@ -1711,6 +1746,10 @@ export default function InvoicingPage() {
                                     <option value="B2B">B2B (Business to Business)</option>
                                 </select>
                             </div>
+                        </div>
+
+                        <div className="inv-meta mt-4">
+
                             <div className="inv-field">
                                 <label className="inv-label">CUSTOMER GST</label>
                                 <input
@@ -1733,7 +1772,17 @@ export default function InvoicingPage() {
                                 <input className="input" type="date" value={issueDate} onChange={e => setIssueDate(e.target.value)} />
                             </div>
                         </div>
-
+                        <div className="inv-field full-width" style={{ gridColumn: 'span 3', marginTop: '10px' }}>
+                            <label className="inv-label">CUSTOMER ADDRESS</label>
+                            <textarea
+                                className="input"
+                                placeholder="Customer full address"
+                                value={customerAddress}
+                                onChange={(e) => setCustomerAddress(e.target.value)}
+                                rows="2"
+                                style={{ width: '100%', resize: 'none' }}
+                            />
+                        </div>
                         {/* <div className="inv-meta mt-4">
                             <div className="inv-field">
                                 <label className="inv-label">ISSUE DATE</label>
@@ -1798,7 +1847,90 @@ export default function InvoicingPage() {
 
                                         <div className="col-span-2"> <label className="inv-label text-xs uppercase block mb-1"> TYPE </label> <select className="input w-full" value={item.type} onChange={(e) => { const value = e.target.value; setItems(prev => prev.map(i => i.id === item.id ? { ...i, type: value, product_id: '', service_id: '', name: '', price: 0, serial_numbers: [], attributes: {} } : i)); }} > <option value="PRODUCT"> PRODUCT </option> <option value="SERVICE"> SERVICE </option> </select> </div>
 
-                                        <div className="col-span-4"> <label className="inv-label text-xs uppercase block mb-1"> {item.type === "PRODUCT" ? "PRODUCT *" : "SERVICE *"} </label> <select className="input w-full" value={item.type === "PRODUCT" ? item.product_id : item.service_id} onChange={(e) => { const selectedId = e.target.value; /* ───── PRODUCT ───── */ if (item.type === "PRODUCT") { const prod = allProducts.find(p => String(p.id) === String(selectedId)); let amount = 0; if (prod) { const priceObj = prod.product_pricing?.[0] || prod.pricing?.[0]; if (priceObj?.price) amount = Number(priceObj.price); else if (prod.price) amount = Number(prod.price); else if (prod.selling_price) amount = Number(prod.selling_price); } setItems(prev => prev.map(i => i.id === item.id ? { ...i, product_id: selectedId, service_id: '', name: prod?.name || '', price: amount, tax: prod?.tax || 0, brand: prod?.brand_name || prod?.brand || '', hsn: prod?.hsn || '', serial_numbers: [], attributes: {} } : i)); if (selectedId) { fetchSerialsForProduct(item.id, selectedId); } } /* ───── SERVICE ───── */ else { const service = allServices.find(s => String(s.id) === String(selectedId)); const pricing = service?.pricing_models?.[0]; const amount = Number(pricing?.price || 0); setItems(prev => prev.map(i => i.id === item.id ? { ...i, service_id: selectedId, product_id: '', name: service?.name || '', price: amount, tax: service?.gst_percentage || 0, hsn: service?.hsn || '', serial_numbers: [], attributes: {} } : i)); } }} > <option value=""> {item.type === "PRODUCT" ? "Choose Product" : "Choose Service"} </option> {item.type === "PRODUCT" ? allProducts?.map((p) => (<option key={p.id} value={p.id} > {p.name} </option>)) : allServices?.map((s) => (<option key={s.id} value={s.id} > {s.name} </option>))} </select> </div>
+                                        <div className="col-span-4">
+                                            <label className="inv-label text-xs uppercase block mb-1">
+                                                {item.type === "PRODUCT" ? "PRODUCT *" : "SERVICE *"}
+                                            </label>
+
+                                            <Select
+                                                className="react-select-container"
+                                                classNamePrefix="react-select"
+                                                placeholder={item.type === "PRODUCT" ? "Search Product..." : "Search Service..."}
+                                                isSearchable={true}
+                                                isClearable={true}
+                                                // Value format: { value: '123', label: 'Product Name' }
+                                                value={
+                                                    item.type === "PRODUCT"
+                                                        ? allProducts.find(p => String(p.id) === String(item.product_id))
+                                                            ? { value: item.product_id, label: allProducts.find(p => String(p.id) === String(item.product_id))?.name }
+                                                            : null
+                                                        : allServices.find(s => String(s.id) === String(item.service_id))
+                                                            ? { value: item.service_id, label: allServices.find(s => String(s.id) === String(item.service_id))?.name }
+                                                            : null
+                                                }
+                                                // Options format map panrom
+                                                options={
+                                                    item.type === "PRODUCT"
+                                                        ? allProducts?.map(p => ({ value: String(p.id), label: p.name }))
+                                                        : allServices?.map(s => ({ value: String(s.id), label: s.name }))
+                                                }
+                                                onChange={(selectedOption) => {
+                                                    const selectedId = selectedOption ? selectedOption.value : '';
+
+                                                    if (item.type === "PRODUCT") {
+                                                        const prod = allProducts.find(p => String(p.id) === String(selectedId));
+                                                        let amount = 0;
+                                                        if (prod) {
+                                                            const priceObj = prod.product_pricing?.[0] || prod.pricing?.[0];
+                                                            amount = Number(priceObj?.price || prod.price || prod.selling_price || 0);
+                                                        }
+
+                                                        setItems(prev => prev.map(i => i.id === item.id ? {
+                                                            ...i,
+                                                            product_id: selectedId,
+                                                            service_id: '',
+                                                            name: prod?.name || '',
+                                                            price: amount,
+                                                            tax: prod?.tax || 0,
+                                                            brand: prod?.brand_name || prod?.brand || '',
+                                                            hsn: prod?.hsn || '',
+                                                            serial_numbers: [],
+                                                            attributes: {}
+                                                        } : i));
+
+                                                        if (selectedId) fetchSerialsForProduct(item.id, selectedId);
+                                                    }
+                                                    else {
+                                                        const service = allServices.find(s => String(s.id) === String(selectedId));
+                                                        const pricing = service?.pricing_models?.[0];
+                                                        const amount = Number(pricing?.price || 0);
+
+                                                        setItems(prev => prev.map(i => i.id === item.id ? {
+                                                            ...i,
+                                                            service_id: selectedId,
+                                                            product_id: '',
+                                                            name: service?.name || '',
+                                                            price: amount,
+                                                            tax: service?.gst_percentage || 0,
+                                                            hsn: service?.hsn || '',
+                                                            serial_numbers: [],
+                                                            attributes: {}
+                                                        } : i));
+                                                    }
+                                                }}
+                                                // Styling (Tailwind kooda match aaga)
+                                                styles={{
+                                                    control: (base) => ({
+                                                        ...base,
+                                                        minHeight: '38px',
+                                                        fontSize: '14px',
+                                                        borderRadius: '0.375rem',
+                                                        borderColor: '#e2e8f0', // Tailwind slate-200
+                                                    }),
+                                                }}
+                                            />
+                                        </div>
+                                        {/* <div className="col-span-4"> <label className="inv-label text-xs uppercase block mb-1"> {item.type === "PRODUCT" ? "PRODUCT *" : "SERVICE *"} </label> <select className="input w-full" value={item.type === "PRODUCT" ? item.product_id : item.service_id} onChange={(e) => { const selectedId = e.target.value;  if (item.type === "PRODUCT") { const prod = allProducts.find(p => String(p.id) === String(selectedId)); let amount = 0; if (prod) { const priceObj = prod.product_pricing?.[0] || prod.pricing?.[0]; if (priceObj?.price) amount = Number(priceObj.price); else if (prod.price) amount = Number(prod.price); else if (prod.selling_price) amount = Number(prod.selling_price); } setItems(prev => prev.map(i => i.id === item.id ? { ...i, product_id: selectedId, service_id: '', name: prod?.name || '', price: amount, tax: prod?.tax || 0, brand: prod?.brand_name || prod?.brand || '', hsn: prod?.hsn || '', serial_numbers: [], attributes: {} } : i)); if (selectedId) { fetchSerialsForProduct(item.id, selectedId); } }  else { const service = allServices.find(s => String(s.id) === String(selectedId)); const pricing = service?.pricing_models?.[0]; const amount = Number(pricing?.price || 0); setItems(prev => prev.map(i => i.id === item.id ? { ...i, service_id: selectedId, product_id: '', name: service?.name || '', price: amount, tax: service?.gst_percentage || 0, hsn: service?.hsn || '', serial_numbers: [], attributes: {} } : i)); } }} > <option value=""> {item.type === "PRODUCT" ? "Choose Product" : "Choose Service"} </option> {item.type === "PRODUCT" ? allProducts?.map((p) => (<option key={p.id} value={p.id} > {p.name} </option>)) : allServices?.map((s) => (<option key={s.id} value={s.id} > {s.name} </option>))} </select> </div> */}
 
                                         {/* <div className="col-span-4">
                                             <label className="inv-label text-xs uppercase block mb-1">PRODUCT *</label>
@@ -1873,6 +2005,10 @@ export default function InvoicingPage() {
                                         <div className="col-span-3">
                                             <label className="inv-label text-xs uppercase block mb-1">DISCOUNT</label>
                                             <input className="input w-full" type="number" min="0" placeholder="0.00" value={item.discount} onChange={e => updateItem(item.id, 'discount', e.target.value)} />
+                                        </div>
+                                        <div className="col-span-3">
+                                            <label className="inv-label text-xs uppercase block mb-1">Warranty Duration</label>
+                                            <input className="input w-full" type="text" min="0" placeholder="Warranty Duration" value={item.warranty_duration} onChange={e => updateItem(item.id, 'warranty_duration', e.target.value)} />
                                         </div>
 
                                         {/* Dynamic Attributes Mapping */}
@@ -2076,6 +2212,8 @@ export default function InvoicingPage() {
                                                 <option value="CASH">💵 Cash</option>
                                                 <option value="UPI">📱 UPI / Scanner</option>
                                                 <option value="CARD">💳 Card</option>
+                                                <option value="CREDIT_CARD">💳 Credit Card</option>
+                                                <option value="CREDIT_SALE">📝 Credit Sale</option>
                                             </select>
                                         </div>
                                     </div>
@@ -2114,7 +2252,7 @@ export default function InvoicingPage() {
                                     </div>
 
                                     {/* Transaction ID */}
-                                    {pay.payment_method !== 'CASH' && (
+                                    {pay.payment_method !== 'CASH' && pay.payment_method !== 'CREDIT_SALE' && (
                                         <div className="col-span-12 mt-1" style={{ gridColumn: 'span 12' }}>
                                             <input
                                                 className="input w-full"
@@ -2254,6 +2392,7 @@ export default function InvoicingPage() {
                     toast.info("Form cleared for new order");
                 }}
                 data={invoiceData}
+                poData={poData}
                 resetForm={resetForm}
             />
             <POSModal
