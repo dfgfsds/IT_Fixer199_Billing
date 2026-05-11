@@ -9,13 +9,11 @@ import Logo from "../../src/assets/logo2.png"
  */
 
 const printInvoice = (orderData) => {
-    console.log(orderData)
-    const { customerName, customerNumber, customer_gst, invoiceNo, issueDate, items = [] } = orderData;
-
+    const { customerName, customerNumber, customer_gst, invoiceNo, issueDate, items, customerAddress = [] } = orderData;
     // Logic and Calculations
     const totalQty = items.reduce((acc, curr) => acc + parseInt(curr?.qty || 0), 0);
     const totalDiscount = items.reduce((acc, curr) => acc + (parseFloat(curr?.discount || 0)), 0);
-
+    console.log(items)
     const netAmount = items.reduce((acc, item) => {
         const qty = parseFloat(item?.qty || 0);
         const price = parseFloat(item?.price || 0);
@@ -44,6 +42,9 @@ const printInvoice = (orderData) => {
         str += (Number(n[5]) !== 0) ? ((str !== '') ? 'and ' : '') + (a[Number(n[5])] || b[n[5][0]] + ' ' + a[n[5][1]]) + 'Rs. Only' : '';
         return str;
     };
+        // ${item?.serial_number?.length > 0
+        //        ? item.serial_number.map(serial => `<br/>SN: ${serial}`).join('')
+        //         : ''} 
 
     const logoSrc = Logo;
 
@@ -239,14 +240,14 @@ font-weight: 600;
         </div>
 
         <div class="bill-details">
-          <div class="to-section">
+           <div class="to-section">
             <b>To:</b><br/>
-            ${customerName?.toUpperCase()} HARDWARE<br/>
-            ADDRESS:126 B, Vanniar Street, Bangaru Colony,<br/>
-K.K.Nagar Chennai – 600078
- ${customer_gst ? `<br/>
+            ${customerName?.toUpperCase()} <br/>
+            ${customerAddress?.toUpperCase()} <br/>
+ ${customer_gst ? `
     GST: ${customer_gst}` : ''}<br/>
-    PHN: ${customerNumber}<br/>
+    ${customerNumber ? `
+    PHN: ${customerNumber}` : ''}<br/>
           </div>
           <div class="no-section">
             <table>
@@ -271,23 +272,35 @@ K.K.Nagar Chennai – 600078
               </tr>
             </thead>
             <tbody>
-              ${items.map((item, index) => {
+             ${items.map((item, index) => {
         const qty = parseFloat(item?.qty || 0);
         const rate = parseFloat(item?.price || 0);
         const itemGross = qty * rate;
         const itemTaxable = itemGross / 1.18;
         const itemTax = (itemGross - itemTaxable) / 2;
+
         return `
-                <tr>
-                  <td class="text-center">${index + 1}</td>
-                  <td><b>${item?.name || 'Product'}</b></td>
-                  <td class="text-center"><b>${item?.hsn || ''}</b></td>
-                  <td class="text-center"><b>${qty}</b></td>
-                  <td class="text-right"><b>${rate.toFixed(2)}</b></td>
-                  <td class="text-right"><b>${itemTax.toFixed(2)}</b></td>
-                  <td class="text-right"><b>${itemTax.toFixed(2)}</b></td>
-                  <td class="text-right"><b>${itemTaxable.toFixed(2)}</b></td>
-                </tr>`
+    <tr>
+      <td class="text-center">${index + 1}</td>
+    <td>
+  <b>
+    ${item?.name || 'Product'}
+    
+
+      
+    <br/>
+    <span style="font-weight: normal; font-size: 9px;">
+      Warranty: ${item?.warranty_duration || 'N/A'}
+    </span>
+  </b>
+</td>
+      <td class="text-center"><b>${item?.hsn || ''}</b></td>
+      <td class="text-center"><b>${qty}</b></td>
+      <td class="text-right"><b>${itemTaxable.toFixed(2)}</b></td>
+      <td class="text-right"><b>${itemTax.toFixed(2)}</b></td>
+      <td class="text-right"><b>${itemTax.toFixed(2)}</b></td>
+      <td class="text-right"><b>${rate.toFixed(2)}</b></td>
+    </tr>`;
     }).join("")}
               
               ${Array(emptyRowsNeeded).fill(0).map(() => `<tr><td>&nbsp;</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>`).join("")}
@@ -297,7 +310,7 @@ K.K.Nagar Chennai – 600078
                 <td colspan="2" class="text-center">Gross Amount</td>
                 <td class="text-right">${cgst_sgst.toFixed(2)}</td>
                 <td class="text-right">${cgst_sgst.toFixed(2)}</td>
-                <td class="text-right">${taxableValue.toFixed(2)}</td>
+                <td class="text-right">${netAmount.toFixed(2)}</td>
               </tr>
             </tbody>
           </table>
@@ -373,20 +386,21 @@ const OrderPreviewModal = ({ open, onClose, orderId }) => {
         try {
             const res = await axiosInstance.get(`${Api.singleOrder}${orderId}`);
             const o = res.data?.order;
-
             const mappedItems = (o.items || []).map(i => ({
-                name: i.item_details?.name || i.name || 'Product',
+                name: i.item_details?.name || 'Product',
                 qty: Number(i.quantity || 1),
                 price: Number(i.price),
                 discount: Number(i.discount || 0),
-                hsn: i.hsn || 'hsn_001'
+                hsn: i.hsn || 'hsn_001',
+                warranty_duration: i.warranty_duration || '',
+                serial_number: [i.serial_number] || [],
             }));
 
             setData({
                 customerName: o.customer_name,
                 customer_gst: o?.customer_gst,
                 customerNumber: o.customer_number,
-                customerAddress: o.customer_address || "Address not provided",
+                customerAddress: o?.address || "Address not provided",
                 invoiceNo: o.invoice_number || o.id?.slice(0, 8).toUpperCase(),
                 issueDate: new Date(o.created_at).toLocaleDateString('en-GB'),
                 items: mappedItems,
@@ -401,7 +415,7 @@ const OrderPreviewModal = ({ open, onClose, orderId }) => {
     if (!open) return null;
     if (loading || !data) return <div className="modal-overlay">Loading...</div>;
 
-    const { customerName, customerNumber, customerAddress, invoiceNo, issueDate, items } = data;
+    const { customerName, customerNumber, customerAddress, invoiceNo, issueDate, items, customer_gst } = data;
     const totalQty = items.reduce((a, b) => a + Number(b.qty), 0);
     const totalDiscount = items.reduce((a, b) => a + (Number(b.discount) || 0), 0);
 
@@ -504,8 +518,13 @@ const OrderPreviewModal = ({ open, onClose, orderId }) => {
                         <div style={{ display: 'grid', gridTemplateColumns: '1.5fr 1fr', borderBottom: '2px solid #000' }}>
                             <div style={{ padding: '8px', borderRight: '2px solid #000' }}>
                                 <div style={{ fontSize: '12px' }}><b>To:</b> {customerName}</div>
-                                <div style={{ fontSize: '12px' }}><b>PH:</b> {customerNumber}</div>
-                                {/* <div style={{ fontSize: '10px' }}>{customerAddress}</div> */}
+                                <div style={{ fontSize: '10px' }}>{customerAddress}</div>
+                                {customerNumber && (
+                                    <div style={{ fontSize: '12px' }}><b>PH:</b> {customerNumber}</div>
+                                )}
+                                {customer_gst && (
+                                    <div style={{ fontSize: '12px' }}><b>GST:</b> {customer_gst}</div>
+                                )}
                             </div>
                             <div style={{ padding: '8px', fontSize: '12px' }}>
                                 <div style={{ display: 'flex' }}><span>Bill No :</span> <span>{invoiceNo}</span></div>
@@ -536,10 +555,10 @@ const OrderPreviewModal = ({ open, onClose, orderId }) => {
                                             <td>{item.name}</td>
                                             <td>{item.hsn}</td>
                                             <td>{item.qty}</td>
-                                            <td>{item.price.toFixed(2)}</td>
-                                            <td>{((item.qty * item.price * 0.18) / 2 / 1.18).toFixed(2)}</td>
-                                            <td>{((item.qty * item.price * 0.18) / 2 / 1.18).toFixed(2)}</td>
                                             <td>{((item.qty * item.price) / 1.18).toFixed(2)}</td>
+                                            <td>{((item.qty * item.price * 0.18) / 2 / 1.18).toFixed(2)}</td>
+                                            <td>{((item.qty * item.price * 0.18) / 2 / 1.18).toFixed(2)}</td>
+                                            <td>{item.price.toFixed(2)}</td>
                                         </tr>
                                     ))}
 
@@ -557,7 +576,7 @@ const OrderPreviewModal = ({ open, onClose, orderId }) => {
                                         <td>Gross</td>
                                         <td>{cgst_sgst.toFixed(2)}</td>
                                         <td>{cgst_sgst.toFixed(2)}</td>
-                                        <td>{netAmountWithOutGst.toFixed(2)}</td>
+                                        <td>{netAmount?.toFixed(2)}</td>
                                     </tr>
                                 </tfoot>
                             </table>
