@@ -880,7 +880,7 @@ function PreviewModal({ open, onClose, data, resetForm, poData }) {
                                         <tr key={idx} className="item-row">
                                             <td style={{ textAlign: 'center' }}>{idx + 1}</td>
                                             <td style={{ textAlign: 'left' }}>{item.name}</td>
-                                            <td style={{ textAlign: 'center' }}>{item.hsn || 'hsn_001'}</td>
+                                            <td style={{ textAlign: 'center' }}>{item.hsn}</td>
                                             <td style={{ textAlign: 'center' }}>{item.qty}</td>
                                             <td style={{ textAlign: 'right', borderRight: 'none' }}>{((item.qty * item.price) / 1.18).toFixed(2)}</td>
                                             <td style={{ textAlign: 'right' }}>{((item.qty * item.price * 0.18) / 2 / 1.18).toFixed(2)}</td>
@@ -1705,8 +1705,8 @@ const fetchCustomerAddress = async (userId) => {
                     <p className="section-subtitle">Create a professional ledger entry for your client.</p>
                 </div>
                 <div className="inv-header-actions">
-                    {/* <button className="btn btn-outline" onClick={() => printInvoice(invoiceData)}>Print</button>
-                    <button className="btn btn-outline" onClick={() => setShowPreview(true)}>Preview</button> */}
+                    <button className="btn btn-outline" onClick={() => printInvoice(invoiceData)}>Print</button>
+                    <button className="btn btn-outline" onClick={() => setShowPreview(true)}>Preview</button>
                     <button
                         disabled={loading}
                         className="btn btn-primary d-flex align-items-center justify-content-center"

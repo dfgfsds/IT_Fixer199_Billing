@@ -387,7 +387,7 @@ const OrderPreviewModal = ({ open, onClose, orderId }) => {
                 qty: Number(i.quantity || 1),
                 price: Number(i.price),
                 discount: Number(i.discount || 0),
-                hsn: i.hsn || 'hsn_001',
+                hsn: i.hsn_code,
                 warranty_duration: i.warranty_duration || '',
                 serial_number: [i.serial_number] || [],
             }));
