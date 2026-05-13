@@ -1705,8 +1705,8 @@ const fetchCustomerAddress = async (userId) => {
                     <p className="section-subtitle">Create a professional ledger entry for your client.</p>
                 </div>
                 <div className="inv-header-actions">
-                    <button className="btn btn-outline" onClick={() => printInvoice(invoiceData)}>Print</button>
-                    <button className="btn btn-outline" onClick={() => setShowPreview(true)}>Preview</button>
+                    {/* <button className="btn btn-outline" onClick={() => printInvoice(invoiceData)}>Print</button>
+                    <button className="btn btn-outline" onClick={() => setShowPreview(true)}>Preview</button> */}
                     <button
                         disabled={loading}
                         className="btn btn-primary d-flex align-items-center justify-content-center"
