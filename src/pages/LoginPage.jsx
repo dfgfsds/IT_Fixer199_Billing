@@ -129,7 +129,7 @@ export default function LoginPage({ onLogin }) {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     // New state for Role
-    const [role, setRole] = useState('Hub Manager'); 
+    const [role, setRole] = useState('HUB_MANAGER'); 
     const [showPass, setShowPass] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
     const [errorMsg, setErrorMsg] = useState('');
